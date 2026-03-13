@@ -2,48 +2,80 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index()
     {
-        //
+        return response()->json(User::all());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6',
+            'phone_number' => 'required',
+            'role' => 'required'
+        ]);
+
+        $user = User::create([
+            'name'=>$request->name,
+            'email'=>$request->email,
+            'password'=>bcrypt($request->password),
+            'phone_number'=>$request->phone_number
+        ]);
+
+        $user->assignRole($request->role);
+
+        return response()->json([
+            'message'=>'User created successfully',
+            'user'=>$user
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        return response()->json(User::findOrFail($id));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request,$id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        $user->update($request->only([
+            'name',
+            'email',
+            'phone_number'
+        ]));
+
+        if($request->role){
+            $user->syncRoles([$request->role]);
+        }
+
+        return response()->json([
+            'message'=>'User updated',
+            'user'=>$user
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Request $request, $id)
     {
-        //
+        if($request->user()->id == $id){
+            return response()->json([
+                'message' => 'You cannot delete your own account'
+            ], 403);
+        }
+
+        User::destroy($id);
+
+        return response()->json([
+            'message' => 'User deleted'
+        ]);
     }
+
 }

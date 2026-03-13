@@ -2,48 +2,61 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function index(Request $request)
     {
-        //
+        $posts = Post::when($request->category_id, function ($q) use ($request) {
+            $q->where('category_id',$request->category_id);
+        })->get();
+
+        return response()->json($posts);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'title'=>'required',
+            'category_id'=>'required',
+            'short_text'=>'required',
+            'large_text'=>'required'
+        ]);
+
+        $post = Post::create([
+            'title'=>$request->title,
+            'slug'=>Str::slug($request->title),
+            'category_id'=>$request->category_id,
+            'short_text'=>$request->short_text,
+            'large_text'=>$request->large_text
+        ]);
+
+        return response()->json($post);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        return Post::findOrFail($id);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request,$id)
     {
-        //
+        $post = Post::findOrFail($id);
+
+        $post->update($request->all());
+
+        return response()->json($post);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        Post::destroy($id);
+
+        return response()->json(['message'=>'Deleted']);
     }
+
 }

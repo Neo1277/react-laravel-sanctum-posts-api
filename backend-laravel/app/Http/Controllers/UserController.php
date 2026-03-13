@@ -2,80 +2,58 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
+use App\Services\UserCrudService;
 
 class UserController extends Controller
 {
+    protected UserCrudService $userService;
+
+    public function __construct(UserCrudService $userService)
+    {
+        $this->userService = $userService;
+    }
 
     public function index()
     {
-        return response()->json(User::all());
+        return response()->json($this->userService->getAllUsers());
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'phone_number' => 'required',
-            'role' => 'required'
+            'name'=>'required',
+            'email'=>'required|email|unique:users',
+            'password'=>'required|min:6',
+            'phone_number'=>'required',
+            'role'=>'required'
         ]);
 
-        $user = User::create([
-            'name'=>$request->name,
-            'email'=>$request->email,
-            'password'=>bcrypt($request->password),
-            'phone_number'=>$request->phone_number
-        ]);
+        $user = $this->userService->createUser($request->all());
 
-        $user->assignRole($request->role);
-
-        return response()->json([
-            'message'=>'User created successfully',
-            'user'=>$user
-        ]);
+        return response()->json(['message'=>'User created','user'=>$user], 201);
     }
 
     public function show($id)
     {
-        return response()->json(User::findOrFail($id));
+        $user = $this->userService->getUserById($id);
+        if (!$user) return response()->json(['message'=>'User not found'], 404);
+        return response()->json($user);
     }
 
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id);
-
-        $user->update($request->only([
-            'name',
-            'email',
-            'phone_number'
-        ]));
-
-        if($request->role){
-            $user->syncRoles([$request->role]);
-        }
-
-        return response()->json([
-            'message'=>'User updated',
-            'user'=>$user
-        ]);
+        $user = $this->userService->updateUser($id, $request->all());
+        return response()->json(['message'=>'User updated','user'=>$user]);
     }
 
     public function destroy(Request $request, $id)
     {
-        if($request->user()->id == $id){
-            return response()->json([
-                'message' => 'You cannot delete your own account'
-            ], 403);
+        try {
+            $this->userService->deleteUser($id, $request->user()->id);
+            return response()->json(['message'=>'User deleted']);
+        } catch (\Exception $e) {
+            return response()->json(['message'=>$e->getMessage()], 403);
         }
-
-        User::destroy($id);
-
-        return response()->json([
-            'message' => 'User deleted'
-        ]);
     }
-
 }

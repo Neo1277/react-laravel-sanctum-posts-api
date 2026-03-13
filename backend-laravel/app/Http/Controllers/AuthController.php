@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use App\Services\AuthService;
 
 class AuthController extends Controller
 {
+    protected AuthService $authService;
+
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
 
     public function register(Request $request)
     {
@@ -18,46 +23,30 @@ class AuthController extends Controller
             'phone_number'=>'required'
         ]);
 
-        $user = User::create([
-            'name'=>$request->name,
-            'email'=>$request->email,
-            'password'=>bcrypt($request->password),
-            'phone_number'=>$request->phone_number
-        ]);
+        $result = $this->authService->register($request->all());
 
-        $user->assignRole('user');
-
-        return response()->json($user);
+        return response()->json($result, 201);
     }
 
     public function login(Request $request)
     {
+        $request->validate([
+            'email'=>'required|email',
+            'password'=>'required'
+        ]);
 
-        $user = User::where('email',$request->email)->first();
+        $result = $this->authService->login($request->all());
 
-        if(!$user || !Hash::check($request->password,$user->password)){
-            return response()->json(['message'=>'Invalid credentials'],401);
+        if (!$result) {
+            return response()->json(['message'=>'Invalid credentials'], 401);
         }
 
-        $token = $user->createToken('api-token')->plainTextToken;
-
-        return response()->json([
-            'token'=>$token,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone_number' => $user->phone_number,
-                'roles' => $user->getRoleNames(), // Returns a collection of roles
-            ],
-        ]);
+        return response()->json($result);
     }
 
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
-
-        return response()->json(['message'=>'Logged out']);
+        $result = $this->authService->logout($request->user());
+        return response()->json($result);
     }
-
 }

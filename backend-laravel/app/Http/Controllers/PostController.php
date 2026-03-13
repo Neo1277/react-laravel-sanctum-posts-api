@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Post;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Services\Interfaces\PostServiceInterface;
 
 class PostController extends Controller
 {
+    protected PostServiceInterface $postService;
 
-    public function index(Request $request)
+    public function __construct(PostServiceInterface $postService)
     {
-        $posts = Post::when($request->category_id, function ($q) use ($request) {
-            $q->where('category_id',$request->category_id);
-        })->get();
+        $this->postService = $postService;
+    }
 
-        return response()->json($posts);
+    public function index()
+    {
+        return response()->json($this->postService->all());
     }
 
     public function store(Request $request)
@@ -27,36 +28,25 @@ class PostController extends Controller
             'large_text'=>'required'
         ]);
 
-        $post = Post::create([
-            'title'=>$request->title,
-            'slug'=>Str::slug($request->title),
-            'category_id'=>$request->category_id,
-            'short_text'=>$request->short_text,
-            'large_text'=>$request->large_text
-        ]);
+        $post = $this->postService->create((array)$request->all());
 
-        return response()->json($post);
+        return response()->json($post, 201);
     }
 
     public function show($id)
     {
-        return Post::findOrFail($id);
+        return response()->json($this->postService->find($id));
     }
 
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
-        $post = Post::findOrFail($id);
-
-        $post->update($request->all());
-
+        $post = $this->postService->update((array)$request->all(), $id);
         return response()->json($post);
     }
 
     public function destroy($id)
     {
-        Post::destroy($id);
-
+        $this->postService->delete($id);
         return response()->json(['message'=>'Deleted']);
     }
-
 }

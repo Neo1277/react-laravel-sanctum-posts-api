@@ -1,0 +1,35 @@
+import { useState } from "react";
+import Slider from "./components/Slider";
+import PostList from "./components/PostList";
+import Pagination from "./components/Pagination";
+import { posts } from "./data/posts";
+
+export default function App() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 6;
+
+  const start = (currentPage - 1) * postsPerPage;
+  const currentPosts = posts.slice(start, start + postsPerPage);
+
+  const totalPages = Math.ceil(posts.length / postsPerPage);
+
+  return (
+    <div className="bg-gradient-to-br from-slate-100 via-gray-200 to-slate-300 min-h-screen p-6">
+      <div className="max-w-6xl mx-auto">
+        <Slider />
+
+        <h1 className="text-3xl font-bold mt-8">
+          Latest Posts
+        </h1>
+
+        <PostList posts={currentPosts} />
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      </div>
+    </div>
+  );
+}

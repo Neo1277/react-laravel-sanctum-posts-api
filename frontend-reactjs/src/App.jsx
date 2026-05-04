@@ -1,17 +1,23 @@
 import { useState } from "react";
+import Login from "./components/Login";
 import Slider from "./components/Slider";
 import PostList from "./components/PostList";
 import Pagination from "./components/Pagination";
 import { posts } from "./data/posts";
 
 export default function App() {
+  const [isLogged, setIsLogged] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 6;
 
+  const postsPerPage = 6;
   const start = (currentPage - 1) * postsPerPage;
   const currentPosts = posts.slice(start, start + postsPerPage);
-
   const totalPages = Math.ceil(posts.length / postsPerPage);
+
+  // 👇 If not logged in → show login
+  if (!isLogged) {
+    return <Login onLogin={setIsLogged} />;
+  }
 
   return (
     <div className="bg-gradient-to-br from-slate-100 via-gray-200 to-slate-300 min-h-screen p-6">

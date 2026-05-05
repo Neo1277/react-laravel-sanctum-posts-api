@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Mail, Lock } from "lucide-react";
 import { motion } from "framer-motion";
 
-export default function Login({ onLogin }) {
+export default function Login({ onLogin, goToSignup }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -18,7 +18,7 @@ export default function Login({ onLogin }) {
 
   return (
     <div className="min-h-screen flex items-center justify-center 
-                    bg-gradient-to-br from-indigo-200 via-purple-200 to-pink-200">
+                bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400">
 
       <motion.div
         initial={{ opacity: 0, y: 40 }}
@@ -67,6 +67,15 @@ export default function Login({ onLogin }) {
         <p className="text-sm text-gray-500 mt-4 text-center">
           Demo: enter anything to continue
         </p>
+        <p className="text-sm text-center mt-4">
+          Don’t have an account?{" "}
+          <button
+            onClick={goToSignup}
+            className="text-indigo-600 font-semibold hover:underline"
+          >
+            Sign up
+          </button>
+        </p>        
       </motion.div>
     </div>
   );

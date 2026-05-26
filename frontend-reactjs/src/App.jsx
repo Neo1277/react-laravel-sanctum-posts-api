@@ -6,6 +6,8 @@ import PostList from "./components/PostList";
 import Pagination from "./components/Pagination";
 import Navbar from "./components/Navbar";
 import { posts } from "./data/posts";
+import { Routes, Route } from "react-router-dom";
+import PostPage from "./components/PostPage";
 
 export default function App() {
   const [isLogged, setIsLogged] = useState(false);
@@ -35,19 +37,39 @@ export default function App() {
     );
   }
 
-  return (
-    <div className="bg-gradient-to-br from-slate-100 via-gray-200 to-slate-300 min-h-screen p-6">
-      <div className="max-w-6xl mx-auto">
-        <Navbar onLogout={handleLogout} />
-        <Slider />
-        <h1 className="text-3xl font-bold mt-8">Latest Posts</h1>
-        <PostList posts={currentPosts} />
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
-      </div>
-    </div>
-  );
+return (
+  <Routes>
+
+    {/* Home */}
+    <Route
+      path="/"
+      element={
+        <div className="bg-gradient-to-br from-slate-100 via-gray-200 to-slate-300 min-h-screen p-6">
+          <div className="max-w-6xl mx-auto">
+
+            <Navbar onLogout={handleLogout} />
+
+            <Slider />
+
+            <h1 className="text-3xl font-bold mt-8">
+              Latest Posts
+            </h1>
+
+            <PostList posts={currentPosts} />
+
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        </div>
+      }
+    />
+
+    {/* Single Post */}
+    <Route path="/posts/:id" element={<PostPage />} />
+
+  </Routes>
+);
 }

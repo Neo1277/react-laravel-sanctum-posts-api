@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Post;
 use App\Models\Category;
+use App\Models\Post;
+use Illuminate\Database\Seeder;
 
 class PostSeeder extends Seeder
 {
@@ -12,7 +12,7 @@ class PostSeeder extends Seeder
     {
         Post::factory()->count(10)->create(
             [
-                'category_id' => Category::factory()->create()->id
+                'category_id' => Category::factory()->create()->id,
             ]
         );
     }

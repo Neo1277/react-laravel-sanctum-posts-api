@@ -2,16 +2,15 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-
 use App\Repositories\Interfaces\PostRepositoryInterface;
+use App\Repositories\Interfaces\UserCrudRepositoryInterface;
+use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\PostRepository;
+use App\Repositories\UserCrudRepository;
+use App\Repositories\UserRepository;
 use App\Services\Interfaces\PostServiceInterface;
 use App\Services\PostService;
-use App\Repositories\Interfaces\UserRepositoryInterface;
-use App\Repositories\UserRepository;
-use App\Repositories\Interfaces\UserCrudRepositoryInterface;
-use App\Repositories\UserCrudRepository;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {

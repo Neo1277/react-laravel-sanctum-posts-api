@@ -2,9 +2,6 @@
 
 namespace App\Services\Interfaces;
 
-use Illuminate\Database\Eloquent\Collection;
-use App\Models\Post;
-
 interface PostServiceInterface
 {
     public function all();

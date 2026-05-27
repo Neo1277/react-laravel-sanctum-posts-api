@@ -2,9 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Repositories\Interfaces\UserCrudRepositoryInterface;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
+use App\Repositories\Interfaces\UserCrudRepositoryInterface;
 
 class UserCrudRepository implements UserCrudRepositoryInterface
 {
@@ -27,6 +26,7 @@ class UserCrudRepository implements UserCrudRepositoryInterface
     {
         $user = $this->findById($id);
         $user->update($data);
+
         return $user;
     }
 

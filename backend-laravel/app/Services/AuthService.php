@@ -31,7 +31,7 @@ class AuthService
                 'email' => $user->email,
                 'phone_number' => $user->phone_number,
                 'roles' => $user->getRoleNames(),
-            ]
+            ],
         ];
     }
 
@@ -39,7 +39,7 @@ class AuthService
     {
         $user = $this->userRepo->findByEmail($data['email']);
 
-        if (!$user || !Hash::check($data['password'], $user->password)) {
+        if (! $user || ! Hash::check($data['password'], $user->password)) {
             return null;
         }
 
@@ -53,13 +53,14 @@ class AuthService
                 'email' => $user->email,
                 'phone_number' => $user->phone_number,
                 'roles' => $user->getRoleNames(),
-            ]
+            ],
         ];
     }
 
     public function logout($user)
     {
         $user->tokens()->delete();
+
         return ['message' => 'Logged out'];
     }
 }

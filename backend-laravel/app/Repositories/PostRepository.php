@@ -2,8 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Repositories\Interfaces\PostRepositoryInterface;
 use App\Models\Post;
+use App\Repositories\Interfaces\PostRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 
 class PostRepository implements PostRepositoryInterface
@@ -27,6 +27,7 @@ class PostRepository implements PostRepositoryInterface
     {
         $post = $this->find($id);
         $post->update($data);
+
         return $post;
     }
 

@@ -54,7 +54,7 @@ class UserCrudService
     public function deleteUser(int $id, $currentUserId)
     {
         if ($id == $currentUserId) {
-            throw new \Exception("You cannot delete your own account.");
+            throw new \Exception('You cannot delete your own account.');
         }
 
         return $this->userRepo->delete($id);

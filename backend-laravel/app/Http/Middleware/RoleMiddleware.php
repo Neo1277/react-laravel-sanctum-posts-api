@@ -13,17 +13,15 @@ use Illuminate\Http\Request;
  *
  * Usage in routes:
  * Route::middleware([RoleMiddleware::class.':admin'])->group(...);
- *
- * @package App\Http\Middleware
  */
 class RoleMiddleware
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request The incoming HTTP request.
-     * @param  \Closure  $next The next middleware/controller to call.
-     * @param  string  $role The role required to access the route.
+     * @param  Request  $request  The incoming HTTP request.
+     * @param  Closure  $next  The next middleware/controller to call.
+     * @param  string  $role  The role required to access the route.
      * @return mixed Returns the next middleware/controller if authorized,
      *               otherwise returns a JSON response with 403 status.
      */
@@ -31,9 +29,9 @@ class RoleMiddleware
     {
         $user = $request->user();
 
-        if (!$user || !$user->hasRole($role)) {
+        if (! $user || ! $user->hasRole($role)) {
             return response()->json([
-                'message' => 'Unauthorized. Role ' . $role . ' required.'
+                'message' => 'Unauthorized. Role '.$role.' required.',
             ], 403);
         }
 

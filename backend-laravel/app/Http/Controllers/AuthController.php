@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Services\AuthService;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -17,10 +17,10 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name'=>'required',
-            'email'=>'required|email|unique:users',
-            'password'=>'required|min:6',
-            'phone_number'=>'required'
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6',
+            'phone_number' => 'required',
         ]);
 
         $result = $this->authService->register($request->all());
@@ -31,14 +31,14 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email'=>'required|email',
-            'password'=>'required'
+            'email' => 'required|email',
+            'password' => 'required',
         ]);
 
         $result = $this->authService->login($request->all());
 
-        if (!$result) {
-            return response()->json(['message'=>'Invalid credentials'], 401);
+        if (! $result) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
         return response()->json($result);
@@ -47,6 +47,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $result = $this->authService->logout($request->user());
+
         return response()->json($result);
     }
 }

@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Services\AuthService;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreAuthUserRequest;
+use App\Http\Requests\LoginUserRequest;
+use App\Http\Resources\AuthUserResource;
+use Illuminate\Http\Response;
 
 class AuthController extends Controller
 {
@@ -14,34 +18,37 @@ class AuthController extends Controller
         $this->authService = $authService;
     }
 
-    public function register(Request $request)
+    public function register(StoreAuthUserRequest $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'phone_number' => 'required',
-        ]);
+        $result = $this->authService->register($request->validated());
 
-        $result = $this->authService->register($request->all());
-
-        return response()->json($result, 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'User registered successfully.',
+            'data' => [
+                'token' => $result['token'],
+                'user' => new AuthUserResource($result['user'])
+            ]            
+        ])->setStatusCode(Response::HTTP_CREATED);
     }
 
-    public function login(Request $request)
+    public function login(LoginUserRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        $result = $this->authService->login($request->all());
+        $result = $this->authService->login($request->validated());
 
         if (! $result) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+            return response()->json(['message' => 'Invalid credentials'])
+                ->setStatusCode(Response::HTTP_UNAUTHORIZED);
         }
 
-        return response()->json($result);
+        return response()->json([
+            'success' => true,
+            'message' => 'User Logged in successfully.',
+            'data' => [
+                'token' => $result['token'],
+                'user' => new AuthUserResource($result['user'])
+            ]              
+        ]);
     }
 
     public function logout(Request $request)

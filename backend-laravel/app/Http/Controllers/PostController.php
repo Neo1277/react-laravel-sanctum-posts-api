@@ -27,7 +27,7 @@ class PostController extends Controller
 
     public function store(StorePostRequest $request)
     {
-        $post = $this->postService->create((array) $request->validated());
+        $post = $this->postService->create($request->validated());
 
         return response()->json([
             'success' => true,
@@ -51,7 +51,7 @@ class PostController extends Controller
 
     public function update(StorePostRequest $request, $id)
     {
-        $post = $this->postService->update((array) $request->validated(), $id);
+        $post = $this->postService->update($request->validated(), $id);
 
         return response()->json([
             'success' => true,

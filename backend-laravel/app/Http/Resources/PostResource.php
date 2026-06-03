@@ -21,6 +21,9 @@ class PostResource extends JsonResource
             'slug' => $this->slug,
             'short_text' => $this->short_text,
             'large_text' => $this->large_text,
+            'image' => $this->image
+                ? asset('storage/'.$this->image)
+                : null,
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];

@@ -4,7 +4,7 @@ namespace App\Services\Interfaces;
 
 interface PostServiceInterface
 {
-    public function all();
+    public function paginate(int $perPage = 10);
 
     public function find(int $id);
 

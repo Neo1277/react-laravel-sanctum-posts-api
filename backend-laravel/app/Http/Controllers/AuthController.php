@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginUserRequest;
+use App\Http\Requests\StoreAuthUserRequest;
+use App\Http\Resources\AuthUserResource;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
-use App\Http\Requests\StoreAuthUserRequest;
-use App\Http\Requests\LoginUserRequest;
-use App\Http\Resources\AuthUserResource;
 use Illuminate\Http\Response;
 
 class AuthController extends Controller
@@ -27,8 +27,8 @@ class AuthController extends Controller
             'message' => 'User registered successfully.',
             'data' => [
                 'token' => $result['token'],
-                'user' => new AuthUserResource($result['user'])
-            ]            
+                'user' => new AuthUserResource($result['user']),
+            ],
         ])->setStatusCode(Response::HTTP_CREATED);
     }
 
@@ -46,8 +46,8 @@ class AuthController extends Controller
             'message' => 'User Logged in successfully.',
             'data' => [
                 'token' => $result['token'],
-                'user' => new AuthUserResource($result['user'])
-            ]              
+                'user' => new AuthUserResource($result['user']),
+            ],
         ]);
     }
 

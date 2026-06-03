@@ -4,13 +4,12 @@ namespace App\Repositories;
 
 use App\Models\Post;
 use App\Repositories\Interfaces\PostRepositoryInterface;
-use Illuminate\Database\Eloquent\Collection;
 
 class PostRepository implements PostRepositoryInterface
 {
-    public function all(): Collection
+    public function paginate(int $perPage = 10)
     {
-        return Post::all();
+        return Post::paginate($perPage);
     }
 
     public function find(int $id): ?Post

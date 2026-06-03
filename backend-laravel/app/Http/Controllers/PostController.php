@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePostRequest;
+use App\Http\Resources\PostResource;
 use App\Services\Interfaces\PostServiceInterface;
-use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class PostController extends Controller
 {
@@ -16,33 +18,48 @@ class PostController extends Controller
 
     public function index()
     {
-        return response()->json($this->postService->all());
+        $posts = $this->postService
+            ->paginate(10)
+            ->withQueryString();
+
+        return PostResource::collection($posts);
     }
 
-    public function store(Request $request)
+    public function store(StorePostRequest $request)
     {
-        $request->validate([
-            'title' => 'required',
-            'category_id' => 'required',
-            'short_text' => 'required',
-            'large_text' => 'required',
-        ]);
+        $post = $this->postService->create((array) $request->validated());
 
-        $post = $this->postService->create((array) $request->all());
-
-        return response()->json($post, 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'Post registered successfully.',
+            'data' => [
+                'post' => new PostResource($post),
+            ],
+        ])->setStatusCode(Response::HTTP_CREATED);
     }
 
     public function show($id)
     {
-        return response()->json($this->postService->find($id));
+        $post = $this->postService->find($id);
+
+        return response()->json([
+            'data' => [
+                'post' => new PostResource($post),
+            ],
+        ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(StorePostRequest $request, $id)
     {
-        $post = $this->postService->update((array) $request->all(), $id);
+        $post = $this->postService->update((array) $request->validated(), $id);
 
-        return response()->json($post);
+        return response()->json([
+            'success' => true,
+            'message' => 'Post updated successfully.',
+            'data' => [
+                'post' => new PostResource($post),
+            ],
+        ]);
     }
 
     public function destroy($id)

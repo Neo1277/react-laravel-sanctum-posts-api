@@ -6,7 +6,7 @@ use App\Models\Post;
 
 interface PostRepositoryInterface
 {
-    public function all();
+    public function paginate(int $perPage = 10);
 
     public function find(int $id): ?Post;
 

@@ -14,9 +14,9 @@ class UserCrudService
         $this->userRepo = $userRepo;
     }
 
-    public function getAllUsers()
+    public function paginate(int $perPage = 10)
     {
-        return $this->userRepo->all();
+        return $this->userRepo->paginate($perPage);
     }
 
     public function getUserById(int $id)

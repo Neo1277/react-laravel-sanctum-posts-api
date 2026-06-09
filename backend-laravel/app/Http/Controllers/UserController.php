@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\UserCrudResource;
 use App\Services\UserCrudService;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class UserController extends Controller
 {
@@ -16,39 +20,52 @@ class UserController extends Controller
 
     public function index()
     {
-        return response()->json($this->userService->getAllUsers());
+        $posts = $this->userService
+            ->paginate(10)
+            ->withQueryString();
+
+        return UserCrudResource::collection($posts);
     }
 
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'phone_number' => 'required',
-            'role' => 'required',
-        ]);
+        $user = $this->userService->createUser($request->validated());
 
-        $user = $this->userService->createUser($request->all());
-
-        return response()->json(['message' => 'User created', 'user' => $user], 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'User created.',
+            'data' => [
+                'user' => new UserCrudResource($user),
+            ],
+        ])->setStatusCode(Response::HTTP_CREATED);
     }
 
     public function show($id)
     {
         $user = $this->userService->getUserById($id);
         if (! $user) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json(['message' => 'User not found'])
+                ->setStatusCode(Response::HTTP_NOT_FOUND);
         }
 
-        return response()->json($user);
+        return response()->json([
+            'data' => [
+                'user' => new UserCrudResource($user),
+            ],
+        ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateUserRequest $request, $id)
     {
-        $user = $this->userService->updateUser($id, $request->all());
+        $user = $this->userService->updateUser($id, $request->validated());
 
-        return response()->json(['message' => 'User updated', 'user' => $user]);
+        return response()->json([
+            'success' => true,
+            'message' => 'User updated.',
+            'data' => [
+                'user' => new UserCrudResource($user),
+            ],
+        ]);
     }
 
     public function destroy(Request $request, $id)

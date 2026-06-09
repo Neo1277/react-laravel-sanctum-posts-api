@@ -6,7 +6,7 @@ use App\Models\User;
 
 interface UserCrudRepositoryInterface
 {
-    public function all();
+    public function paginate(int $perPage = 10);
 
     public function findById(int $id): ?User;
 

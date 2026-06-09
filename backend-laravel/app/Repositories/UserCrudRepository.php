@@ -7,9 +7,9 @@ use App\Repositories\Interfaces\UserCrudRepositoryInterface;
 
 class UserCrudRepository implements UserCrudRepositoryInterface
 {
-    public function all()
+    public function paginate(int $perPage = 10)
     {
-        return User::all();
+        return User::paginate($perPage);
     }
 
     public function findById(int $id): ?User

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\Interfaces\UserCrudRepositoryInterface;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Hash;
 
 class UserCrudService
@@ -57,6 +58,14 @@ class UserCrudService
             throw new \Exception('You cannot delete your own account.');
         }
 
-        return $this->userRepo->delete($id);
+        $deleted = $this->userRepo->delete($id);
+
+        if (! $deleted) {
+            throw new ModelNotFoundException(
+                'User not found.'
+            );
+        }
+
+        return true;
     }
 }

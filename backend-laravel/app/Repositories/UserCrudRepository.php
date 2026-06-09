@@ -32,6 +32,8 @@ class UserCrudRepository implements UserCrudRepositoryInterface
 
     public function delete(int $id): bool
     {
-        return User::destroy($id) > 0;
+        $user = User::findOrFail($id);
+
+        return $user->delete();
     }
 }

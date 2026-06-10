@@ -64,14 +64,15 @@ class PostService implements PostServiceInterface
         return $this->postRepository->update($data, $id);
     }
 
-    public function delete(int $id)
+    public function delete(int $id): bool
     {
-        $post = $this->postRepository->find($id);
+        $post = $this->postRepository->findOrFail($id);
 
-        if ($post && $post->image) {
+        if ($post->image) {
             Storage::disk('public')->delete($post->image);
         }
 
         return $this->postRepository->delete($id);
     }
+    
 }

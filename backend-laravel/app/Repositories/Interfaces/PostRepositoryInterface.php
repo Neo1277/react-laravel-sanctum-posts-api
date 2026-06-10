@@ -10,6 +10,8 @@ interface PostRepositoryInterface
 
     public function find(int $id): ?Post;
 
+    public function findOrFail(int $id);
+
     public function create(array $data): Post;
 
     public function update(array $data, int $id): Post;

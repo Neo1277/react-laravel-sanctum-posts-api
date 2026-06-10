@@ -66,6 +66,9 @@ class PostController extends Controller
     {
         $this->postService->delete($id);
 
-        return response()->json(['message' => 'Deleted']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Post deleted successfully.',
+        ]);
     }
 }

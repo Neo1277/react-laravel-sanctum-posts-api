@@ -17,6 +17,11 @@ class PostRepository implements PostRepositoryInterface
         return Post::find($id);
     }
 
+    public function findOrFail(int $id): Post
+    {
+        return Post::findOrFail($id);
+    }
+
     public function create(array $data): Post
     {
         return Post::create($data);
@@ -32,6 +37,8 @@ class PostRepository implements PostRepositoryInterface
 
     public function delete(int $id): bool
     {
-        return Post::destroy($id) > 0;
+        $post = Post::findOrFail($id);
+
+        return $post->delete();
     }
 }

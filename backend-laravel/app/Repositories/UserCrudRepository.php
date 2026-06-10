@@ -14,7 +14,7 @@ class UserCrudRepository implements UserCrudRepositoryInterface
 
     public function findById(int $id): ?User
     {
-        return User::find($id);
+         return User::findOrFail($id);
     }
 
     public function create(array $data): User

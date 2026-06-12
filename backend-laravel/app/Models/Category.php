@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * Category Model
@@ -12,10 +14,9 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property int $id
  * @property string $name
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- *
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Post> $posts
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Post> $posts
  */
 class Category extends Model
 {
@@ -25,14 +26,14 @@ class Category extends Model
      * The attributes that are mass assignable.
      *
      * @var list<string>
-     */    
+     */
     protected $fillable = ['name'];
 
     /**
      * Get all posts belonging to this category.
      *
      * @return HasMany<Post, Category>
-     */    
+     */
     public function posts()
     {
         return $this->hasMany(Post::class);

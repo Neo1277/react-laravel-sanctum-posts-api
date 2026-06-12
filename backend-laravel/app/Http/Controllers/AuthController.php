@@ -6,6 +6,7 @@ use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\StoreAuthUserRequest;
 use App\Http\Resources\AuthUserResource;
 use App\Services\AuthService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -23,16 +24,14 @@ class AuthController extends Controller
 {
     /**
      * Authentication service instance.
-     *
-     * @var AuthService
-     */    
+     */
     protected AuthService $authService;
 
     /**
      * Create a new controller instance.
      *
-     * @param AuthService $authService Service responsible for authentication logic.
-     */    
+     * @param  AuthService  $authService  Service responsible for authentication logic.
+     */
     public function __construct(AuthService $authService)
     {
         $this->authService = $authService;
@@ -41,9 +40,9 @@ class AuthController extends Controller
     /**
      * Register a new user and generate an API token.
      *
-     * @param StoreAuthUserRequest $request Validated registration request.
-     * @return \Illuminate\Http\JsonResponse
-     */    
+     * @param  StoreAuthUserRequest  $request  Validated registration request.
+     * @return JsonResponse
+     */
     public function register(StoreAuthUserRequest $request)
     {
         $result = $this->authService->register($request->validated());
@@ -61,9 +60,9 @@ class AuthController extends Controller
     /**
      * Authenticate a user and generate an API token.
      *
-     * @param LoginUserRequest $request Validated login request.
-     * @return \Illuminate\Http\JsonResponse
-     */    
+     * @param  LoginUserRequest  $request  Validated login request.
+     * @return JsonResponse
+     */
     public function login(LoginUserRequest $request)
     {
         $result = $this->authService->login($request->validated());
@@ -88,9 +87,9 @@ class AuthController extends Controller
      *
      * Logs the user out from all active sessions.
      *
-     * @param Request $request Current authenticated request.
-     * @return \Illuminate\Http\JsonResponse
-     */    
+     * @param  Request  $request  Current authenticated request.
+     * @return JsonResponse
+     */
     public function logout(Request $request)
     {
         $result = $this->authService->logout($request->user());

@@ -74,5 +74,4 @@ class PostService implements PostServiceInterface
 
         return $this->postRepository->delete($id);
     }
-    
 }

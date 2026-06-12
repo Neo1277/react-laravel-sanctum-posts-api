@@ -6,7 +6,9 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserCrudResource;
 use App\Services\UserCrudService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 /**
@@ -27,14 +29,14 @@ class UserController extends Controller
 {
     /**
      * User service instance.
-     */    
+     */
     protected UserCrudService $userService;
 
     /**
      * Create a new controller instance.
      *
-     * @param UserCrudService $userService Service responsible for user management.
-     */    
+     * @param  UserCrudService  $userService  Service responsible for user management.
+     */
     public function __construct(UserCrudService $userService)
     {
         $this->userService = $userService;
@@ -43,8 +45,8 @@ class UserController extends Controller
     /**
      * Display a paginated listing of users.
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
-     */    
+     * @return AnonymousResourceCollection
+     */
     public function index()
     {
         $posts = $this->userService
@@ -59,9 +61,9 @@ class UserController extends Controller
      *
      * Creates the user, hashes the password, and assigns the selected role.
      *
-     * @param StoreUserRequest $request Validated user creation request.
-     * @return \Illuminate\Http\JsonResponse
-     */    
+     * @param  StoreUserRequest  $request  Validated user creation request.
+     * @return JsonResponse
+     */
     public function store(StoreUserRequest $request)
     {
         $user = $this->userService->createUser($request->validated());
@@ -78,9 +80,9 @@ class UserController extends Controller
     /**
      * Display the specified user.
      *
-     * @param int $id User identifier.
-     * @return \Illuminate\Http\JsonResponse
-     */    
+     * @param  int  $id  User identifier.
+     * @return JsonResponse
+     */
     public function show($id)
     {
         $user = $this->userService->getUserById($id);
@@ -97,10 +99,10 @@ class UserController extends Controller
      *
      * Updates user information and synchronizes roles when provided.
      *
-     * @param UpdateUserRequest $request Validated user update request.
-     * @param int $id User identifier.
-     * @return \Illuminate\Http\JsonResponse
-     */    
+     * @param  UpdateUserRequest  $request  Validated user update request.
+     * @param  int  $id  User identifier.
+     * @return JsonResponse
+     */
     public function update(UpdateUserRequest $request, $id)
     {
         $user = $this->userService->updateUser($id, $request->validated());
@@ -119,10 +121,10 @@ class UserController extends Controller
      *
      * Prevents administrators from deleting their own account.
      *
-     * @param Request $request Current authenticated request.
-     * @param int $id User identifier.
-     * @return \Illuminate\Http\JsonResponse
-     */    
+     * @param  Request  $request  Current authenticated request.
+     * @param  int  $id  User identifier.
+     * @return JsonResponse
+     */
     public function destroy(Request $request, $id)
     {
         $this->userService->deleteUser($id, $request->user()->id);

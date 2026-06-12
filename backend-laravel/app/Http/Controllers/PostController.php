@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Resources\PostResource;
 use App\Services\Interfaces\PostServiceInterface;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 /**
@@ -25,16 +27,14 @@ class PostController extends Controller
 {
     /**
      * Post service instance.
-     *
-     * @var PostServiceInterface
-     */    
+     */
     protected PostServiceInterface $postService;
 
     /**
      * Create a new controller instance.
      *
-     * @param PostServiceInterface $postService Service responsible for post operations.
-     */    
+     * @param  PostServiceInterface  $postService  Service responsible for post operations.
+     */
     public function __construct(PostServiceInterface $postService)
     {
         $this->postService = $postService;
@@ -43,8 +43,8 @@ class PostController extends Controller
     /**
      * Display a paginated listing of posts.
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
-     */    
+     * @return AnonymousResourceCollection
+     */
     public function index()
     {
         $posts = $this->postService
@@ -57,9 +57,9 @@ class PostController extends Controller
     /**
      * Store a newly created post.
      *
-     * @param StorePostRequest $request Validated post creation request.
-     * @return \Illuminate\Http\JsonResponse
-     */    
+     * @param  StorePostRequest  $request  Validated post creation request.
+     * @return JsonResponse
+     */
     public function store(StorePostRequest $request)
     {
         $post = $this->postService->create($request->validated());
@@ -76,9 +76,9 @@ class PostController extends Controller
     /**
      * Display the specified post.
      *
-     * @param int $id Post identifier.
-     * @return \Illuminate\Http\JsonResponse
-     */    
+     * @param  int  $id  Post identifier.
+     * @return JsonResponse
+     */
     public function show($id)
     {
         $post = $this->postService->find($id);
@@ -93,9 +93,9 @@ class PostController extends Controller
     /**
      * Update the specified post.
      *
-     * @param StorePostRequest $request Validated post update request.
-     * @param int $id Post identifier.
-     * @return \Illuminate\Http\JsonResponse
+     * @param  StorePostRequest  $request  Validated post update request.
+     * @param  int  $id  Post identifier.
+     * @return JsonResponse
      */
     public function update(StorePostRequest $request, $id)
     {
@@ -115,9 +115,9 @@ class PostController extends Controller
      *
      * Deletes the post and any associated image if present.
      *
-     * @param int $id Post identifier.
-     * @return \Illuminate\Http\JsonResponse
-     */    
+     * @param  int  $id  Post identifier.
+     * @return JsonResponse
+     */
     public function destroy($id)
     {
         $this->postService->delete($id);

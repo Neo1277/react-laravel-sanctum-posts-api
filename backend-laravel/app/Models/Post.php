@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * Post Model
@@ -17,9 +18,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $short_text
  * @property string $large_text
  * @property string|null $image
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- *
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Category $category
  */
 class Post extends Model
@@ -30,7 +30,7 @@ class Post extends Model
      * The attributes that are mass assignable.
      *
      * @var list<string>
-     */    
+     */
     protected $fillable = [
         'category_id',
         'title',
@@ -44,7 +44,7 @@ class Post extends Model
      * Get the category that owns the post.
      *
      * @return BelongsTo<Category, Post>
-     */    
+     */
     public function category()
     {
         return $this->belongsTo(Category::class);

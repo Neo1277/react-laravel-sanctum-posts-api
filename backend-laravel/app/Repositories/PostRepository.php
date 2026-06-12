@@ -69,7 +69,7 @@ class PostRepository implements PostRepositoryInterface
      */
     public function update(array $data, int $id): Post
     {
-        $post = $this->find($id);
+        $post = $this->findOrFail($id);
         $post->update($data);
 
         return $post;

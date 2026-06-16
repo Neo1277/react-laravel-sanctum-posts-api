@@ -23,7 +23,7 @@ class NotifyAdminNewUserListener implements ShouldQueue
      */
     public function handle(UserRegistered $event): void
     {
-        Mail::to('admin@test.com')
+        Mail::to(config('mail.admin'))
             ->send(new NewUserRegisteredMail($event->user));
     }
 }

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
+use App\Events\UserRegistered;
 
 /**
  * AuthService
@@ -52,6 +53,8 @@ class AuthService
 
         $user = $this->userRepo->create($data);
         $user->assignRole('user');
+
+        UserRegistered::dispatch($user);
 
         $token = $user->createToken('api-token')->plainTextToken;
 

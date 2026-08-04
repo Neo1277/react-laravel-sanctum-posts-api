@@ -16,7 +16,7 @@ class UserRegistered
     /**
      * Create a new event instance.
      *
-     * @param User $user The newly registered user.
+     * @param  User  $user  The newly registered user.
      */
     public function __construct(
         public User $user

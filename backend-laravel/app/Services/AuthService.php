@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
+use App\Events\UserRegistered;
 use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
-use App\Events\UserRegistered;
 
 /**
  * AuthService

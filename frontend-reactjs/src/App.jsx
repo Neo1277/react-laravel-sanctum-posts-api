@@ -6,8 +6,9 @@ import PostList from "./components/PostList";
 import Pagination from "./components/Pagination";
 import Navbar from "./components/Navbar";
 import { posts } from "./data/posts";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import PostPage from "./components/PostPage";
+import Dashboard from "./pages/Dashboard";
 
 export default function App() {
   const [isLogged, setIsLogged] = useState(false);
@@ -65,6 +66,16 @@ return (
           </div>
         </div>
       }
+    />
+
+    <Route
+        path="/"
+        element={<Navigate to="/dashboard" />}
+    />
+
+    <Route
+        path="/dashboard"
+        element={<Dashboard />}
     />
 
     {/* Single Post */}

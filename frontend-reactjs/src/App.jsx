@@ -9,6 +9,7 @@ import { posts } from "./data/posts";
 import { Routes, Route, Navigate } from "react-router-dom";
 import PostPage from "./components/PostPage";
 import Dashboard from "./pages/Dashboard";
+import Posts from "./pages/Posts";
 
 export default function App() {
   const [isLogged, setIsLogged] = useState(false);
@@ -80,6 +81,11 @@ return (
 
     {/* Single Post */}
     <Route path="/posts/:id" element={<PostPage />} />
+
+    <Route
+      path="/posts"
+      element={<Posts />}
+    />
 
   </Routes>
 );

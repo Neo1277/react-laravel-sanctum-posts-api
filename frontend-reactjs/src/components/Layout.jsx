@@ -1,28 +1,41 @@
+import { useState } from "react";
+
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 
 export default function Layout({ children }) {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleOpenSidebar = () => {
+        setIsSidebarOpen(true);
+    };
+
+    const handleCloseSidebar = () => {
+        setIsSidebarOpen(false);
+    };
 
     return (
+        <div className="min-h-screen bg-slate-100">
 
-        <div className="bg-slate-100 min-h-screen">
+            {/* Navbar */}
+            <Navbar onMenuClick={handleOpenSidebar} />
 
-            <Navbar />
+            {/* Main layout */}
+            <div className="flex min-h-[calc(100vh-4rem)]">
 
-            <div className="flex">
+                {/* Sidebar */}
+                <Sidebar
+                    isOpen={isSidebarOpen}
+                    onClose={handleCloseSidebar}
+                />
 
-                <Sidebar />
-
-                <main className="flex-1 p-8">
-
+                {/* Main content */}
+                <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">
                     {children}
-
                 </main>
 
             </div>
 
         </div>
-
     );
-
 }

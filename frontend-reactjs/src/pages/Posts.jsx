@@ -1,5 +1,7 @@
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import { Plus, FileText } from "lucide-react";
 
 import Layout from "../components/Layout";
@@ -12,6 +14,10 @@ import { posts as initialPosts } from "../data/posts_data";
 import PostDetails from "../components/posts/PostDetails";
 
 export default function Posts() {
+
+    const location = useLocation();
+    const navigate = useNavigate();
+
     const [posts, setPosts] = useState(initialPosts);
     const [search, setSearch] = useState("");
 
@@ -19,6 +25,20 @@ export default function Posts() {
     const [selectedPost, setSelectedPost] = useState(null);
 
     const [viewingPost, setViewingPost] = useState(null);
+
+    useEffect(() => {
+        if (location.state?.openCreateForm) {
+            setViewingPost(null);
+            setSelectedPost(null);
+            setIsFormOpen(true);
+
+            // Clear navigation state to prevent reopening the form
+            navigate(location.pathname, {
+                replace: true,
+                state: null,
+            });
+        }
+    }, [location, navigate]);    
 
     const filteredPosts = useMemo(() => {
         const query = search.trim().toLowerCase();

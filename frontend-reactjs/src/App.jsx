@@ -10,6 +10,9 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import PostPage from "./components/PostPage";
 import Dashboard from "./pages/Dashboard";
 import Posts from "./pages/Posts";
+import Categories from "./pages/Categories";
+import Users from "./pages/Users";
+import Profile from "./pages/Profile";
 
 export default function App() {
   const [isLogged, setIsLogged] = useState(false);
@@ -39,54 +42,51 @@ export default function App() {
     );
   }
 
-return (
-  <Routes>
-
-    {/* Home */}
-    <Route
-      path="/"
-      element={
-        <div className="bg-gradient-to-br from-slate-100 via-gray-200 to-slate-300 min-h-screen p-6">
-          <div className="max-w-6xl mx-auto">
-
-            <Navbar onLogout={handleLogout} />
-
-            <Slider />
-
-            <h1 className="text-3xl font-bold mt-8">
-              Latest Posts
-            </h1>
-
-            <PostList posts={currentPosts} />
-
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          </div>
-        </div>
-      }
-    />
-
-    <Route
+  return (
+    <Routes>
+      {/* Home */}
+      <Route
         path="/"
-        element={<Navigate to="/dashboard" />}
-    />
+        element={
+          <div className="bg-gradient-to-br from-slate-100 via-gray-200 to-slate-300 min-h-screen p-6">
+            <div className="max-w-6xl mx-auto">
+              <Navbar onLogout={handleLogout} />
+              <Slider />
 
-    <Route
-        path="/dashboard"
-        element={<Dashboard />}
-    />
+              <h1 className="text-3xl font-bold mt-8">
+                Latest Posts
+              </h1>
 
-    {/* Single Post */}
-    <Route path="/posts/:id" element={<PostPage />} />
+              <PostList posts={currentPosts} />
 
-    <Route
-      path="/posts"
-      element={<Posts />}
-    />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          </div>
+        }
+      />
 
-  </Routes>
-);
+      {/* Dashboard */}
+      <Route path="/dashboard" element={<Dashboard />} />
+
+      {/* Posts */}
+      <Route path="/posts/:id" element={<PostPage />} />
+      <Route path="/posts" element={<Posts />} />
+
+      {/* Categories */}
+      <Route path="/categories" element={<Categories />} />
+
+      {/* Users */}
+      <Route path="/users" element={<Users />} />
+
+      {/* Profile */}
+      <Route path="/profile" element={<Profile />} />
+
+      {/* Not found */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
 }

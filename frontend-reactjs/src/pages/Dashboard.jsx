@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import Layout from "../components/Layout";
+import { useNavigate } from "react-router-dom";
 
 const statistics = [
     {
@@ -119,6 +120,9 @@ const recentActivity = [
 ];
 
 export default function Dashboard() {
+
+    const navigate = useNavigate();
+
     return (
         <Layout>
 
@@ -139,6 +143,7 @@ export default function Dashboard() {
 
                     <button
                         type="button"
+                        onClick={() => navigate("/posts", { state: { openCreateForm: true } })}
                         className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700 sm:w-auto"
                     >
                         <Plus size={18} />

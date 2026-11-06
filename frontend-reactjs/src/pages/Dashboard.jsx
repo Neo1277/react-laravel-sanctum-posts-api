@@ -13,6 +13,7 @@ import {
 
 import Layout from "../components/Layout";
 import { useNavigate } from "react-router-dom";
+import StatCard from "../components/dashboard/StatCard";
 
 const statistics = [
     {
@@ -155,52 +156,31 @@ export default function Dashboard() {
                 {/* Statistics cards */}
                 <section>
 
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
 
-                        {statistics.map((item) => {
-                            const Icon = item.icon;
+                        <StatCard
+                            title="Total Posts"
+                            value="128"
+                            description="Posts publicados"
+                        />
 
-                            return (
-                                <div
-                                    key={item.title}
-                                    className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:shadow-md sm:p-6"
-                                >
+                        <StatCard
+                            title="Categories"
+                            value="12"
+                            description="Categorías registradas"
+                        />
 
-                                    <div className="flex items-center justify-between">
+                        <StatCard
+                            title="Total Users"
+                            value="1,254"
+                            description="Usuarios registrados"
+                        />
 
-                                        <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${item.iconBg}`}>
-                                            <Icon
-                                                size={24}
-                                                className={item.iconColor}
-                                            />
-                                        </div>
-
-                                        <span className="flex items-center gap-1 text-sm font-semibold text-emerald-600">
-                                            <ArrowUpRight size={16} />
-                                            {item.change}
-                                        </span>
-
-                                    </div>
-
-                                    <div className="mt-5">
-
-                                        <p className="text-sm font-medium text-gray-500">
-                                            {item.title}
-                                        </p>
-
-                                        <h2 className="mt-1 text-2xl font-bold text-gray-800 sm:text-3xl">
-                                            {item.value}
-                                        </h2>
-
-                                        <p className="mt-2 text-xs text-gray-400">
-                                            {item.description}
-                                        </p>
-
-                                    </div>
-
-                                </div>
-                            );
-                        })}
+                        <StatCard
+                            title="Total Views"
+                            value="24,580"
+                            description="Visualizaciones"
+                        />
 
                     </div>
 

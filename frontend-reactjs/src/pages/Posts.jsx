@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -8,24 +7,32 @@ import Layout from "../components/Layout";
 import SearchBar from "../components/posts/SearchBar";
 import PostTable from "../components/posts/PostTable";
 import PostForm from "../components/posts/PostForm";
+import PostDetails from "../components/posts/PostDetails";
 
 import { posts as initialPosts } from "../data/posts_data";
 
-import PostDetails from "../components/posts/PostDetails";
+import usePosts from "../hooks/usePosts";
 
 export default function Posts() {
 
     const location = useLocation();
     const navigate = useNavigate();
 
-    const [posts, setPosts] = useState(initialPosts);
-    const [search, setSearch] = useState("");
+    // Custom Hook: manages posts state and operations
+    const {
+        posts,
+        addPost,
+        deletePost,
+        updatePost
+    } = usePosts(initialPosts);
 
+    // Local component states
+    const [search, setSearch] = useState("");
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [selectedPost, setSelectedPost] = useState(null);
-
     const [viewingPost, setViewingPost] = useState(null);
 
+    // Open create form when navigating from Dashboard
     useEffect(() => {
         if (location.state?.openCreateForm) {
             setViewingPost(null);
@@ -38,8 +45,9 @@ export default function Posts() {
                 state: null,
             });
         }
-    }, [location, navigate]);    
+    }, [location.state, location.pathname, navigate]);
 
+    // Filter posts by title
     const filteredPosts = useMemo(() => {
         const query = search.trim().toLowerCase();
 
@@ -52,90 +60,92 @@ export default function Posts() {
         );
     }, [posts, search]);
 
+    // View post details
     const handleView = (post) => {
-      setViewingPost(post);
+        setViewingPost(post);
     };
 
+    // Open create form
     const handleCreate = () => {
+        setViewingPost(null);
         setSelectedPost(null);
         setIsFormOpen(true);
     };
 
+    // Open edit form
     const handleEdit = (post) => {
-      setViewingPost(null);
-      setSelectedPost(post);
-      setIsFormOpen(true);
+        setViewingPost(null);
+        setSelectedPost(post);
+        setIsFormOpen(true);
     };
 
+    // Close form
     const handleCancel = () => {
         setSelectedPost(null);
         setIsFormOpen(false);
     };
 
+    // Save new or edited post
     const handleSave = (formData) => {
+
         if (selectedPost) {
+
             // Update existing post
-            setPosts((currentPosts) =>
-                currentPosts.map((post) =>
-                    post.id === selectedPost.id
-                        ? {
-                            ...post,
-                            ...formData
-                        }
-                        : post
-                )
-            );
+            updatePost({
+                ...selectedPost,
+                ...formData
+            });
+
         } else {
+
             // Create new post
             const newPost = {
                 id: Date.now(),
                 ...formData
             };
 
-            setPosts((currentPosts) => [
-                newPost,
-                ...currentPosts
-            ]);
+            addPost(newPost);
         }
 
         handleCancel();
     };
 
+    // Delete post
     const handleDelete = (post) => {
+
         const confirmed = window.confirm(
             `Are you sure you want to delete "${post.title}"?`
         );
 
         if (confirmed) {
-            setPosts((currentPosts) =>
-                currentPosts.filter(
-                    (item) => item.id !== post.id
-                )
-            );
+            deletePost(post.id);
         }
     };
 
+    // Display post details
     if (viewingPost) {
-      return (
-        <Layout>
-          <PostDetails
-            post={viewingPost}
-            onBack={() => setViewingPost(null)}
-            onEdit={handleEdit}
-          />
-        </Layout>
-      );
+        return (
+            <Layout>
+                <PostDetails
+                    post={viewingPost}
+                    onBack={() => setViewingPost(null)}
+                    onEdit={handleEdit}
+                />
+            </Layout>
+        );
     }
-    
+
     return (
         <Layout>
 
             {isFormOpen ? (
+
                 <PostForm
                     post={selectedPost}
                     onSave={handleSave}
                     onCancel={handleCancel}
                 />
+
             ) : (
 
                 <div className="mx-auto max-w-7xl space-y-8">

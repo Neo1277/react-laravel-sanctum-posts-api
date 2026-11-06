@@ -13,6 +13,8 @@ import Posts from "./pages/Posts";
 import Categories from "./pages/Categories";
 import Users from "./pages/Users";
 import Profile from "./pages/Profile";
+import AxiosExample from "./pages/AxiosExample";
+import AxiosCrudExample from "./pages/AxiosCrudExample";
 
 export default function App() {
   const [isLogged, setIsLogged] = useState(false);
@@ -87,6 +89,13 @@ export default function App() {
 
       {/* Not found */}
       <Route path="*" element={<Navigate to="/" replace />} />
+
+      <Route path="/axios-example" element={<AxiosExample />} />
+
+      <Route
+          path="/axios-crud-example"
+          element={<AxiosCrudExample />}
+      />
     </Routes>
   );
 }

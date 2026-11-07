@@ -13,17 +13,19 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('logout', [AuthController::class, 'logout']);
 
-    // USERS CAN VIEW POSTS
+    // Authenticated users
     Route::get('posts', [PostController::class, 'index']);
     Route::get('posts/{id}', [PostController::class, 'show']);
 
-    // ADMIN ONLY
-    Route::middleware(['auth:sanctum', RoleMiddleware::class.':admin'])->group(function () {
+    // Admin only
+    Route::middleware(RoleMiddleware::class . ':admin')->group(function () {
+
         Route::post('posts', [PostController::class, 'store']);
         Route::put('posts/{id}', [PostController::class, 'update']);
         Route::delete('posts/{id}', [PostController::class, 'destroy']);
 
         Route::apiResource('users', UserController::class);
+
     });
 
 });

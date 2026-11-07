@@ -1,6 +1,26 @@
-import { Search, Bell, UserCircle, ChevronDown, Menu } from "lucide-react";
+
+import { useContext, useState } from "react";
+import {
+    Search,
+    Bell,
+    UserCircle,
+    ChevronDown,
+    Menu,
+    LogOut
+} from "lucide-react";
+
+import { AuthContext } from "../context/AuthContext";
 
 export default function Navbar({ onMenuClick }) {
+
+    const { user, isLogged, logout } = useContext(AuthContext);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+    const handleLogout = () => {
+        logout();
+        setIsProfileOpen(false);
+    };
+
     return (
         <header className="relative z-30 flex h-16 items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 shadow-sm sm:px-6 lg:px-8">
 
@@ -57,23 +77,60 @@ export default function Navbar({ onMenuClick }) {
                     </span>
                 </button>
 
-                {/* Profile */}
-                <button
-                    type="button"
-                    className="flex shrink-0 items-center gap-2 rounded-xl bg-gray-100 p-2 transition hover:bg-gray-200 sm:px-3"
-                    aria-label="User profile"
-                >
-                    <UserCircle size={26} className="shrink-0 text-gray-700" />
+                {/* Profile dropdown */}
+                <div className="relative">
 
-                    <span className="hidden text-sm font-medium text-gray-700 sm:inline">
-                        Marlon
-                    </span>
+                    <button
+                        type="button"
+                        onClick={() => setIsProfileOpen(previous => !previous)}
+                        aria-label="User profile"
+                        aria-expanded={isProfileOpen}
+                        className="flex shrink-0 items-center gap-2 rounded-xl bg-gray-100 p-2 transition hover:bg-gray-200 sm:px-3"
+                    >
+                        <UserCircle
+                            size={26}
+                            className="shrink-0 text-gray-700"
+                        />
 
-                    <ChevronDown
-                        size={16}
-                        className="hidden text-gray-500 sm:block"
-                    />
-                </button>
+                        <span className="hidden max-w-28 truncate text-sm font-medium text-gray-700 sm:inline">
+                            {user?.name || "User"}
+                        </span>
+
+                        <ChevronDown
+                            size={16}
+                            className="hidden text-gray-500 sm:block"
+                        />
+                    </button>
+
+                    {isProfileOpen && (
+                        <div className="absolute right-0 mt-2 w-56 rounded-xl border border-gray-200 bg-white py-2 shadow-lg">
+
+                            {isLogged && user && (
+                                <div className="border-b border-gray-100 px-4 py-3">
+                                    <p className="truncate text-sm font-semibold text-gray-800">
+                                        {user.name}
+                                    </p>
+
+                                    <p className="truncate text-xs text-gray-500">
+                                        {user.email}
+                                    </p>
+                                </div>
+                            )}
+
+                            <button
+                                type="button"
+                                onClick={handleLogout}
+                                disabled={!isLogged}
+                                className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <LogOut size={17} />
+                                Logout
+                            </button>
+
+                        </div>
+                    )}
+
+                </div>
 
             </div>
 

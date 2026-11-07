@@ -1,5 +1,5 @@
+import { useState, useContext, useEffect } from "react";
 
-import { useState } from "react";
 import {
   UserCircle,
   Mail,
@@ -12,6 +12,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import Layout from "../components/Layout";
+import { AuthContext } from "../context/AuthContext";
 
 const initialProfile = {
   name: "John Smith",
@@ -21,7 +22,26 @@ const initialProfile = {
 };
 
 export default function Profile() {
-  const [profile, setProfile] = useState(initialProfile);
+
+  const { user, updateUser } = useContext(AuthContext);
+
+  const [profile, setProfile] = useState(() => ({
+      ...initialProfile,
+      ...user,
+      phone_number: user?.phone_number ?? initialProfile.phone_number,
+      image: user?.image ?? ""
+  }));
+
+  useEffect(() => {
+      if (user) {
+          setProfile(previous => ({
+              ...previous,
+              ...user,
+              phone_number: user.phone_number ?? previous.phone_number,
+              image: user.image ?? previous.image
+          }));
+      }
+  }, [user]);
 
   const [passwords, setPasswords] = useState({
     currentPassword: "",
@@ -135,6 +155,13 @@ export default function Profile() {
     setMessage("");
 
     if (Object.keys(newErrors).length > 0) return;
+
+    updateUser({
+      name: profile.name,
+      email: profile.email,
+      phone_number: profile.phone_number,
+      image: profile.image
+  });
 
     // Frontend demonstration only.
     // Password verification and saving will be handled by Laravel later.

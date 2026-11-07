@@ -15,6 +15,8 @@ import Users from "./pages/Users";
 import Profile from "./pages/Profile";
 import AxiosExample from "./pages/AxiosExample";
 import AxiosCrudExample from "./pages/AxiosCrudExample";
+import { ThemeProvider } from "./context/ThemeContext";
+import { AuthProvider } from "./context/AuthContext";
 
 export default function App() {
   const [isLogged, setIsLogged] = useState(false);
@@ -45,57 +47,62 @@ export default function App() {
   }
 
   return (
-    <Routes>
-      {/* Home */}
-      <Route
-        path="/"
-        element={
-          <div className="bg-gradient-to-br from-slate-100 via-gray-200 to-slate-300 min-h-screen p-6">
-            <div className="max-w-6xl mx-auto">
-              <Navbar onLogout={handleLogout} />
-              <Slider />
+    <ThemeProvider>
+      <AuthProvider>
+        <Routes>
+          {/* Home */}
+          <Route
+            path="/"
+            element={
+              <div className="bg-gradient-to-br from-slate-100 via-gray-200 to-slate-300 min-h-screen p-6">
+                <div className="max-w-6xl mx-auto">
+                  <Navbar onLogout={handleLogout} />
+                  <Slider />
 
-              <h1 className="text-3xl font-bold mt-8">
-                Latest Posts
-              </h1>
+                  <h1 className="text-3xl font-bold mt-8">
+                    Latest Posts
+                  </h1>
 
-              <PostList posts={currentPosts} />
+                  <PostList posts={currentPosts} />
 
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
-            </div>
-          </div>
-        }
-      />
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                  />
+                </div>
+              </div>
+            }
+          />
 
-      {/* Dashboard */}
-      <Route path="/dashboard" element={<Dashboard />} />
+          {/* Dashboard */}
+          <Route path="/dashboard" element={<Dashboard />} />
 
-      {/* Posts */}
-      <Route path="/posts/:id" element={<PostPage />} />
-      <Route path="/posts" element={<Posts />} />
+          {/* Posts */}
+          <Route path="/posts/:id" element={<PostPage />} />
+          <Route path="/posts" element={<Posts />} />
 
-      {/* Categories */}
-      <Route path="/categories" element={<Categories />} />
+          {/* Categories */}
+          <Route path="/categories" element={<Categories />} />
 
-      {/* Users */}
-      <Route path="/users" element={<Users />} />
+          {/* Users */}
+          <Route path="/users" element={<Users />} />
 
-      {/* Profile */}
-      <Route path="/profile" element={<Profile />} />
+          {/* Profile */}
+          <Route path="/profile" element={<Profile />} />
 
-      {/* Not found */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Not found */}
+          <Route path="*" element={<Navigate to="/" replace />} />
 
-      <Route path="/axios-example" element={<AxiosExample />} />
+          <Route path="/axios-example" element={<AxiosExample />} />
 
-      <Route
-          path="/axios-crud-example"
-          element={<AxiosCrudExample />}
-      />
-    </Routes>
+          <Route
+              path="/axios-crud-example"
+              element={<AxiosCrudExample />}
+          />
+              
+        </Routes>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

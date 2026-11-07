@@ -7,6 +7,8 @@ import {
     updatePostTitle,
     deletePost
 } from "../services/postService";
+import ThemeButton from "../components/ThemeButton";
+import AuthInfo from "../components/AuthInfo";
 
 export default function AxiosCrudExample() {
 
@@ -128,12 +130,16 @@ export default function AxiosCrudExample() {
     return (
 
         <div className="mx-auto max-w-4xl space-y-8 p-8">
-
+            
             <div>
                 <h1 className="text-3xl font-bold text-slate-800">
                     Axios CRUD Example
                 </h1>
 
+                <ThemeButton />
+
+                <AuthInfo />
+                
                 <p className="mt-2 text-slate-500">
                     Practice HTTP requests using Axios.
                 </p>

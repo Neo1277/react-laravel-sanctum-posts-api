@@ -1,0 +1,29 @@
+import { useContext } from "react";
+import { Navigate } from "react-router-dom";
+
+import { AuthContext } from "../context/AuthContext";
+
+export default function AdminRoute({ children }) {
+
+    const { user, isLogged, loading } = useContext(AuthContext);
+
+    if (loading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center">
+                <p className="text-gray-600">Checking permissions...</p>
+            </div>
+        );
+    }
+
+    if (!isLogged) {
+        return <Navigate to="/login" replace />;
+    }
+
+    const isAdmin = user?.roles?.includes("admin");
+
+    if (!isAdmin) {
+        return <Navigate to="/" replace />;
+    }
+
+    return children;
+}

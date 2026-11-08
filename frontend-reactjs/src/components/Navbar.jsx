@@ -1,4 +1,3 @@
-
 import { useContext, useState } from "react";
 import {
     Search,
@@ -13,12 +12,23 @@ import { AuthContext } from "../context/AuthContext";
 
 export default function Navbar({ onMenuClick }) {
 
-    const { user, isLogged, logout } = useContext(AuthContext);
-    const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const { user, isLogged, loading, logout } = useContext(AuthContext);
 
-    const handleLogout = () => {
-        logout();
-        setIsProfileOpen(false);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [logoutError, setLogoutError] = useState("");
+
+    const handleLogout = async () => {
+        setLogoutError("");
+
+        try {
+            await logout();
+            setIsProfileOpen(false);
+        } catch (error) {
+            setLogoutError(
+                error.response?.data?.message ||
+                "Unable to log out. Please try again."
+            );
+        }
     };
 
     return (
@@ -82,7 +92,10 @@ export default function Navbar({ onMenuClick }) {
 
                     <button
                         type="button"
-                        onClick={() => setIsProfileOpen(previous => !previous)}
+                        onClick={() => {
+                            setLogoutError("");
+                            setIsProfileOpen(previous => !previous);
+                        }}
                         aria-label="User profile"
                         aria-expanded={isProfileOpen}
                         className="flex shrink-0 items-center gap-2 rounded-xl bg-gray-100 p-2 transition hover:bg-gray-200 sm:px-3"
@@ -93,7 +106,7 @@ export default function Navbar({ onMenuClick }) {
                         />
 
                         <span className="hidden max-w-28 truncate text-sm font-medium text-gray-700 sm:inline">
-                            {user?.name || "User"}
+                            {loading ? "Loading..." : user?.name || "User"}
                         </span>
 
                         <ChevronDown
@@ -105,7 +118,11 @@ export default function Navbar({ onMenuClick }) {
                     {isProfileOpen && (
                         <div className="absolute right-0 mt-2 w-56 rounded-xl border border-gray-200 bg-white py-2 shadow-lg">
 
-                            {isLogged && user && (
+                            {loading ? (
+                                <p className="px-4 py-3 text-sm text-gray-500">
+                                    Checking session...
+                                </p>
+                            ) : isLogged && user ? (
                                 <div className="border-b border-gray-100 px-4 py-3">
                                     <p className="truncate text-sm font-semibold text-gray-800">
                                         {user.name}
@@ -115,12 +132,25 @@ export default function Navbar({ onMenuClick }) {
                                         {user.email}
                                     </p>
                                 </div>
+                            ) : (
+                                <p className="px-4 py-3 text-sm text-gray-500">
+                                    No active session.
+                                </p>
+                            )}
+
+                            {logoutError && (
+                                <p
+                                    role="alert"
+                                    className="px-4 py-2 text-xs text-red-600"
+                                >
+                                    {logoutError}
+                                </p>
                             )}
 
                             <button
                                 type="button"
                                 onClick={handleLogout}
-                                disabled={!isLogged}
+                                disabled={!isLogged || loading}
                                 className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <LogOut size={17} />

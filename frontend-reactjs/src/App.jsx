@@ -1,13 +1,22 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import {
+    Routes,
+    Route,
+    Navigate,
+    useNavigate
+} from "react-router-dom";
+
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Slider from "./components/Slider";
 import PostList from "./components/PostList";
 import Pagination from "./components/Pagination";
 import Navbar from "./components/Navbar";
-import { posts } from "./data/posts";
-import { Routes, Route, Navigate } from "react-router-dom";
 import PostPage from "./components/PostPage";
+
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
+
 import Dashboard from "./pages/Dashboard";
 import Posts from "./pages/Posts";
 import Categories from "./pages/Categories";
@@ -15,94 +24,221 @@ import Users from "./pages/Users";
 import Profile from "./pages/Profile";
 import AxiosExample from "./pages/AxiosExample";
 import AxiosCrudExample from "./pages/AxiosCrudExample";
+
+import { posts } from "./data/posts";
+
 import { ThemeProvider } from "./context/ThemeContext";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, AuthContext } from "./context/AuthContext";
 
-export default function App() {
-  const [isLogged, setIsLogged] = useState(false);
-  const [authMode, setAuthMode] = useState("login"); // 👈 new
-  const [currentPage, setCurrentPage] = useState(1);
 
-  const postsPerPage = 6;
-  const start = (currentPage - 1) * postsPerPage;
-  const currentPosts = posts.slice(start, start + postsPerPage);
-  const totalPages = Math.ceil(posts.length / postsPerPage);
+// Home page
+function Home() {
 
-  const handleLogout = () => {
-    setIsLogged(false);
-  };
+    const [currentPage, setCurrentPage] = useState(1);
 
-  if (!isLogged) {
-    return authMode === "login" ? (
-      <Login
-        onLogin={setIsLogged}
-        goToSignup={() => setAuthMode("signup")}
-      />
-    ) : (
-      <Signup
-        onSignup={setIsLogged}
-        goToLogin={() => setAuthMode("login")}
-      />
+    const postsPerPage = 6;
+    const start = (currentPage - 1) * postsPerPage;
+
+    const currentPosts = posts.slice(
+        start,
+        start + postsPerPage
     );
-  }
 
-  return (
-    <ThemeProvider>
-      <AuthProvider>
-        <Routes>
-          {/* Home */}
-          <Route
-            path="/"
-            element={
-              <div className="bg-gradient-to-br from-slate-100 via-gray-200 to-slate-300 min-h-screen p-6">
-                <div className="max-w-6xl mx-auto">
-                  <Navbar onLogout={handleLogout} />
-                  <Slider />
+    const totalPages = Math.ceil(
+        posts.length / postsPerPage
+    );
 
-                  <h1 className="text-3xl font-bold mt-8">
+    return (
+        <div className="bg-gradient-to-br from-slate-100 via-gray-200 to-slate-300 min-h-screen p-6">
+
+            <div className="max-w-6xl mx-auto">
+
+                <Navbar />
+
+                <Slider />
+
+                <h1 className="text-3xl font-bold mt-8">
                     Latest Posts
-                  </h1>
+                </h1>
 
-                  <PostList posts={currentPosts} />
+                <PostList posts={currentPosts} />
 
-                  <Pagination
+                <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}
                     onPageChange={setCurrentPage}
-                  />
-                </div>
-              </div>
-            }
-          />
+                />
 
-          {/* Dashboard */}
-          <Route path="/dashboard" element={<Dashboard />} />
+            </div>
 
-          {/* Posts */}
-          <Route path="/posts/:id" element={<PostPage />} />
-          <Route path="/posts" element={<Posts />} />
+        </div>
+    );
+}
 
-          {/* Categories */}
-          <Route path="/categories" element={<Categories />} />
 
-          {/* Users */}
-          <Route path="/users" element={<Users />} />
+// Routes for users who are not authenticated
+function GuestRoute({ children }) {
 
-          {/* Profile */}
-          <Route path="/profile" element={<Profile />} />
+    const { user, isLogged, loading } = useContext(AuthContext);
 
-          {/* Not found */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+    if (loading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center">
+                Checking session...
+            </div>
+        );
+    }
 
-          <Route path="/axios-example" element={<AxiosExample />} />
+    if (isLogged) {
 
-          <Route
-              path="/axios-crud-example"
-              element={<AxiosCrudExample />}
-          />
-              
+        const isAdmin = user?.roles?.includes("admin");
+
+        return (
+            <Navigate
+                to={isAdmin ? "/dashboard" : "/"}
+                replace
+            />
+        );
+    }
+
+    return children;
+}
+
+
+// Application routes
+function AppRoutes() {
+
+    const navigate = useNavigate();
+
+    return (
+        <Routes>
+
+            {/* Authentication */}
+            <Route
+                path="/login"
+                element={
+                    <GuestRoute>
+                        <Login
+                            goToSignup={() => navigate("/signup")}
+                        />
+                    </GuestRoute>
+                }
+            />
+
+            <Route
+                path="/signup"
+                element={
+                    <GuestRoute>
+                        <Signup
+                            goToLogin={() => navigate("/login")}
+                        />
+                    </GuestRoute>
+                }
+            />
+
+            {/* Blog - authenticated users */}
+            <Route
+                path="/"
+                element={
+                    <ProtectedRoute>
+                        <Home />
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path="/posts/:id"
+                element={
+                    <ProtectedRoute>
+                        <PostPage />
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* Admin panel */}
+            <Route
+                path="/dashboard"
+                element={
+                    <AdminRoute>
+                        <Dashboard />
+                    </AdminRoute>
+                }
+            />
+
+            <Route
+                path="/posts"
+                element={
+                    <AdminRoute>
+                        <Posts />
+                    </AdminRoute>
+                }
+            />
+
+            <Route
+                path="/categories"
+                element={
+                    <AdminRoute>
+                        <Categories />
+                    </AdminRoute>
+                }
+            />
+
+            <Route
+                path="/users"
+                element={
+                    <AdminRoute>
+                        <Users />
+                    </AdminRoute>
+                }
+            />
+
+            <Route
+                path="/profile"
+                element={
+                    <AdminRoute>
+                        <Profile />
+                    </AdminRoute>
+                }
+            />
+
+            {/* Development examples */}
+            <Route
+                path="/axios-example"
+                element={
+                    <ProtectedRoute>
+                        <AxiosExample />
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path="/axios-crud-example"
+                element={
+                    <ProtectedRoute>
+                        <AxiosCrudExample />
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* Not found */}
+            <Route
+                path="*"
+                element={<Navigate to="/" replace />}
+            />
+
         </Routes>
-      </AuthProvider>
-    </ThemeProvider>
-  );
+    );
+}
+
+
+// Main application
+export default function App() {
+
+    return (
+        <ThemeProvider>
+            <AuthProvider>
+                <AppRoutes />
+            </AuthProvider>
+        </ThemeProvider>
+    );
 }

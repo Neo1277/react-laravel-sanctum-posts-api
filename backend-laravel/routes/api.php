@@ -6,18 +6,31 @@ use App\Http\Controllers\UserController;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
 
+
+<?php
+
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\UserController;
+use App\Http\Middleware\RoleMiddleware;
+use Illuminate\Support\Facades\Route;
+
+// Public authentication routes
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
+// Authenticated routes
 Route::middleware('auth:sanctum')->group(function () {
 
+    // Authentication
+    Route::get('user', [AuthController::class, 'user']);
     Route::post('logout', [AuthController::class, 'logout']);
 
-    // Authenticated users
+    // Posts
     Route::get('posts', [PostController::class, 'index']);
     Route::get('posts/{id}', [PostController::class, 'show']);
 
-    // Admin only
+    // Admin routes
     Route::middleware(RoleMiddleware::class . ':admin')->group(function () {
 
         Route::post('posts', [PostController::class, 'store']);

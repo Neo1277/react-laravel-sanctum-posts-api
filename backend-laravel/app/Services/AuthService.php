@@ -1,3 +1,4 @@
+
 <?php
 
 namespace App\Services;
@@ -5,6 +6,7 @@ namespace App\Services;
 use App\Events\UserRegistered;
 use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 /**
@@ -15,8 +17,7 @@ use Illuminate\Support\Facades\Hash;
  * Responsibilities:
  * - Register new users
  * - Authenticate existing users
- * - Generate Sanctum API tokens
- * - Revoke user tokens during logout
+ * - Manage authenticated user sessions
  */
 class AuthService
 {
@@ -28,7 +29,7 @@ class AuthService
     /**
      * Create a new service instance.
      *
-     * @param  UserRepositoryInterface  $userRepo  User repository implementation.
+     * @param UserRepositoryInterface $userRepo
      */
     public function __construct(UserRepositoryInterface $userRepo)
     {
@@ -39,43 +40,35 @@ class AuthService
      * Register a new user.
      *
      * Hashes the password, creates the user, assigns the default
-     * "user" role, and generates an API token.
+     * "user" role, dispatches the registration event and logs in the user.
      *
-     * @param  array<string, mixed>  $data  User registration data.
-     * @return array{
-     *     token: string,
-     *     user: User
-     * }
+     * @param array<string, mixed> $data
+     * @return User
      */
-    public function register(array $data)
+    public function register(array $data): User
     {
         $data['password'] = Hash::make($data['password']);
 
         $user = $this->userRepo->create($data);
+
         $user->assignRole('user');
 
         UserRegistered::dispatch($user);
 
-        $token = $user->createToken('api-token')->plainTextToken;
+        Auth::guard('web')->login($user);
 
-        return [
-            'token' => $token,
-            'user' => $user,
-        ];
+        return $user;
     }
 
     /**
      * Authenticate a user.
      *
-     * Validates credentials and generates a new API token.
+     * Validates the credentials and starts an authenticated session.
      *
-     * @param  array<string, mixed>  $data  Login credentials.
-     * @return array{
-     *     token: string,
-     *     user: User
-     * }|null
+     * @param array<string, mixed> $data
+     * @return User|null
      */
-    public function login(array $data)
+    public function login(array $data): ?User
     {
         $user = $this->userRepo->findByEmail($data['email']);
 
@@ -83,28 +76,18 @@ class AuthService
             return null;
         }
 
-        $token = $user->createToken('api-token')->plainTextToken;
+        Auth::guard('web')->login($user);
 
-        return [
-            'token' => $token,
-            'user' => $user,
-        ];
+        return $user;
     }
 
     /**
      * Log out the authenticated user.
      *
-     * Revokes all active Sanctum tokens for the user.
-     *
-     * @param  User  $user  Authenticated user.
-     * @return array{message: string}
+     * @return void
      */
-    public function logout($user)
+    public function logout(): void
     {
-        $user->tokens()->delete();
-
-        return [
-            'message' => 'Logged out',
-        ];
+        Auth::guard('web')->logout();
     }
 }

@@ -16,9 +16,10 @@ use Illuminate\Http\Response;
  * Handles user authentication operations including:
  * - User registration
  * - User login
+ * - Retrieving the authenticated user
  * - User logout
  *
- * Uses Sanctum tokens for API authentication.
+ * Uses Laravel Sanctum SPA authentication with session cookies.
  */
 class AuthController extends Controller
 {
@@ -29,8 +30,6 @@ class AuthController extends Controller
 
     /**
      * Create a new controller instance.
-     *
-     * @param  AuthService  $authService  Service responsible for authentication logic.
      */
     public function __construct(AuthService $authService)
     {
@@ -38,62 +37,75 @@ class AuthController extends Controller
     }
 
     /**
-     * Register a new user and generate an API token.
-     *
-     * @param  StoreAuthUserRequest  $request  Validated registration request.
-     * @return JsonResponse
+     * Register a new user and start an authenticated session.
      */
-    public function register(StoreAuthUserRequest $request)
+    public function register(StoreAuthUserRequest $request): JsonResponse
     {
-        $result = $this->authService->register($request->validated());
+        $user = $this->authService->register($request->validated());
+
+        $request->session()->regenerate();
 
         return response()->json([
             'success' => true,
             'message' => 'User registered successfully.',
             'data' => [
-                'token' => $result['token'],
-                'user' => new AuthUserResource($result['user']),
+                'user' => new AuthUserResource($user),
             ],
-        ])->setStatusCode(Response::HTTP_CREATED);
+        ], Response::HTTP_CREATED);
     }
 
     /**
-     * Authenticate a user and generate an API token.
-     *
-     * @param  LoginUserRequest  $request  Validated login request.
-     * @return JsonResponse
+     * Authenticate a user and start an authenticated session.
      */
-    public function login(LoginUserRequest $request)
+    public function login(LoginUserRequest $request): JsonResponse
     {
-        $result = $this->authService->login($request->validated());
+        $user = $this->authService->login($request->validated());
 
-        if (! $result) {
-            return response()->json(['message' => 'Invalid credentials'])
-                ->setStatusCode(Response::HTTP_UNAUTHORIZED);
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid credentials.',
+            ], Response::HTTP_UNAUTHORIZED);
         }
+
+        $request->session()->regenerate();
 
         return response()->json([
             'success' => true,
-            'message' => 'User Logged in successfully.',
+            'message' => 'User logged in successfully.',
             'data' => [
-                'token' => $result['token'],
-                'user' => new AuthUserResource($result['user']),
+                'user' => new AuthUserResource($user),
             ],
         ]);
     }
 
     /**
-     * Revoke all tokens for the authenticated user.
-     *
-     * Logs the user out from all active sessions.
-     *
-     * @param  Request  $request  Current authenticated request.
-     * @return JsonResponse
+     * Retrieve the currently authenticated user.
      */
-    public function logout(Request $request)
+    public function user(Request $request): JsonResponse
     {
-        $result = $this->authService->logout($request->user());
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'user' => new AuthUserResource($request->user()),
+            ],
+        ]);
+    }
 
-        return response()->json($result);
+    /**
+     * Log out the authenticated user and invalidate the session.
+     */
+    public function logout(Request $request): JsonResponse
+    {
+        $this->authService->logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logged out successfully.',
+        ]);
     }
 }

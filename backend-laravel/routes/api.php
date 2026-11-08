@@ -6,15 +6,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
 
-
-<?php
-
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\PostController;
-use App\Http\Controllers\UserController;
-use App\Http\Middleware\RoleMiddleware;
-use Illuminate\Support\Facades\Route;
-
 // Public authentication routes
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);

@@ -22,8 +22,8 @@ import Posts from "./pages/Posts";
 import Categories from "./pages/Categories";
 import Users from "./pages/Users";
 import Profile from "./pages/Profile";
-import AxiosExample from "./pages/AxiosExample";
-import AxiosCrudExample from "./pages/AxiosCrudExample";
+//import AxiosExample from "./pages/AxiosExample";
+//import AxiosCrudExample from "./pages/AxiosCrudExample";
 
 import { posts } from "./data/posts";
 
@@ -202,6 +202,7 @@ function AppRoutes() {
             />
 
             {/* Development examples */}
+            {/*
             <Route
                 path="/axios-example"
                 element={
@@ -210,7 +211,9 @@ function AppRoutes() {
                     </ProtectedRoute>
                 }
             />
+            */}
 
+            {/*
             <Route
                 path="/axios-crud-example"
                 element={
@@ -219,6 +222,7 @@ function AppRoutes() {
                     </ProtectedRoute>
                 }
             />
+            */}
 
             {/* Not found */}
             <Route

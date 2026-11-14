@@ -1,187 +1,93 @@
 import { useCallback, useEffect, useState } from "react";
+import postService from "../services/postService";
 
-import {
-    getPosts,
-    createPost as createPostRequest,
-    updatePost as updatePostRequest,
-    updatePostTitle as updatePostTitleRequest,
-    deletePost as deletePostRequest
-} from "../services/postService";
-
-export default function usePostsApi() {
+function usePosts() {
 
     const [posts, setPosts] = useState([]);
+    const [pagination, setPagination] = useState(null);
+    const [page, setPage] = useState(1);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // GET: Get all posts
-    const fetchPosts = useCallback(async () => {
-
-        setLoading(true);
-        setError(null);
+    // Get posts from Laravel API
+    const fetchPosts = useCallback(async (currentPage = page) => {
 
         try {
+            setLoading(true);
+            setError(null);
 
-            const data = await getPosts();
+            const response = await postService.getAll(currentPage);
 
-            setPosts(data);
+            setPosts(response.data);
+            setPagination(response.meta);
 
-        } catch (error) {
+        } catch (err) {
 
-            setError("Error loading posts.");
+            console.error("Error fetching posts:", err);
+
+            setError(
+                err.response?.data?.message ||
+                "Unable to load posts."
+            );
 
         } finally {
-
             setLoading(false);
-
         }
 
-    }, []);
+    }, [page]);
 
-    // POST: Create a post
+    // Load posts when the page changes
+    useEffect(() => {
+        fetchPosts(page);
+    }, [page, fetchPosts]);
+
+    // Create post
     const addPost = async (postData) => {
 
-        setLoading(true);
-        setError(null);
+        await postService.create(postData);
 
-        try {
+        setPage(1);
 
-            const newPost = await createPostRequest(postData);
-
-            setPosts((currentPosts) => [
-                newPost,
-                ...currentPosts
-            ]);
-
-            return newPost;
-
-        } catch (error) {
-
-            setError("Error creating post.");
-            return null;
-
-        } finally {
-
-            setLoading(false);
-
+        if (page === 1) {
+            await fetchPosts(1);
         }
-
     };
 
-    // PUT: Update a complete post
+    // Delete post
+    const deletePost = async (id) => {
+
+        await postService.remove(id);
+
+        const currentPosts = posts.length;
+
+        if (currentPosts === 1 && page > 1) {
+            setPage(currentPage => currentPage - 1);
+        } else {
+            await fetchPosts(page);
+        }
+    };
+
+    // Update post
     const updatePost = async (id, postData) => {
 
-        setLoading(true);
-        setError(null);
+        await postService.update(id, postData);
 
-        try {
-
-            const updatedPost = await updatePostRequest(
-                id,
-                postData
-            );
-
-            setPosts((currentPosts) =>
-                currentPosts.map((post) =>
-                    post.id === id
-                        ? updatedPost
-                        : post
-                )
-            );
-
-            return updatedPost;
-
-        } catch (error) {
-
-            setError("Error updating post.");
-            return null;
-
-        } finally {
-
-            setLoading(false);
-
-        }
-
+        await fetchPosts(page);
     };
-
-    // PATCH: Update only the title
-    const updatePostTitle = async (id, title) => {
-
-        setLoading(true);
-        setError(null);
-
-        try {
-
-            const updatedData = await updatePostTitleRequest(
-                id,
-                title
-            );
-
-            setPosts((currentPosts) =>
-                currentPosts.map((post) =>
-                    post.id === id
-                        ? { ...post, ...updatedData }
-                        : post
-                )
-            );
-
-            return updatedData;
-
-        } catch (error) {
-
-            setError("Error updating post title.");
-            return null;
-
-        } finally {
-
-            setLoading(false);
-
-        }
-
-    };
-
-    // DELETE: Delete a post
-    const removePost = async (id) => {
-
-        setLoading(true);
-        setError(null);
-
-        try {
-
-            await deletePostRequest(id);
-
-            setPosts((currentPosts) =>
-                currentPosts.filter((post) => post.id !== id)
-            );
-
-            return true;
-
-        } catch (error) {
-
-            setError("Error deleting post.");
-            return false;
-
-        } finally {
-
-            setLoading(false);
-
-        }
-
-    };
-
-    // Load posts when the hook is initialized
-    useEffect(() => {
-        fetchPosts();
-    }, [fetchPosts]);
 
     return {
         posts,
+        pagination,
+        page,
+        setPage,
         loading,
         error,
         fetchPosts,
         addPost,
-        updatePost,
-        updatePostTitle,
-        removePost
+        deletePost,
+        updatePost
     };
 }
+
+export default usePosts;

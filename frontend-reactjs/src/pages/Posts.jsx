@@ -1,15 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { Plus, FileText } from "lucide-react";
+import { Plus, FileText, ChevronLeft, ChevronRight } from "lucide-react";
 
 import Layout from "../components/Layout";
 import SearchBar from "../components/posts/SearchBar";
 import PostTable from "../components/posts/PostTable";
 import PostForm from "../components/posts/PostForm";
 import PostDetails from "../components/posts/PostDetails";
-
-import { posts as initialPosts } from "../data/posts_data";
 
 import usePosts from "../hooks/usePosts";
 
@@ -18,13 +16,18 @@ export default function Posts() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Custom Hook: manages posts state and operations
+    // Custom Hook: manages posts and API operations
     const {
         posts,
+        pagination,
+        page,
+        setPage,
+        loading,
+        error,
         addPost,
         deletePost,
         updatePost
-    } = usePosts(initialPosts);
+    } = usePosts();
 
     // Local component states
     const [search, setSearch] = useState("");
@@ -39,7 +42,6 @@ export default function Posts() {
             setSelectedPost(null);
             setIsFormOpen(true);
 
-            // Clear navigation state to prevent reopening the form
             navigate(location.pathname, {
                 replace: true,
                 state: null,
@@ -56,7 +58,7 @@ export default function Posts() {
         }
 
         return posts.filter((post) =>
-            post.title.toLowerCase().includes(query)
+            post.title?.toLowerCase().includes(query)
         );
     }, [posts, search]);
 
@@ -86,39 +88,60 @@ export default function Posts() {
     };
 
     // Save new or edited post
-    const handleSave = (formData) => {
+    const handleSave = async (formData) => {
 
-        if (selectedPost) {
+        try {
 
-            // Update existing post
-            updatePost({
-                ...selectedPost,
-                ...formData
-            });
+            if (selectedPost) {
 
-        } else {
+                // Update existing post
+                await updatePost(selectedPost.id, formData);
 
-            // Create new post
-            const newPost = {
-                id: Date.now(),
-                ...formData
-            };
+            } else {
 
-            addPost(newPost);
+                // Create new post
+                await addPost(formData);
+
+            }
+
+            handleCancel();
+
+        } catch (err) {
+
+            console.error("Error saving post:", err);
+
+            window.alert(
+                err.response?.data?.message ||
+                "An error occurred while saving the post."
+            );
+
         }
-
-        handleCancel();
     };
 
     // Delete post
-    const handleDelete = (post) => {
+    const handleDelete = async (post) => {
 
         const confirmed = window.confirm(
             `Are you sure you want to delete "${post.title}"?`
         );
 
-        if (confirmed) {
-            deletePost(post.id);
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+
+            await deletePost(post.id);
+
+        } catch (err) {
+
+            console.error("Error deleting post:", err);
+
+            window.alert(
+                err.response?.data?.message ||
+                "An error occurred while deleting the post."
+            );
+
         }
     };
 
@@ -200,7 +223,7 @@ export default function Posts() {
                                 </p>
 
                                 <p className="mt-1 text-2xl font-bold text-slate-800">
-                                    {posts.length}
+                                    {pagination?.total ?? 0}
                                 </p>
                             </div>
 
@@ -242,12 +265,70 @@ export default function Posts() {
 
                         </div>
 
-                        <PostTable
-                            posts={filteredPosts}
-                            onView={handleView}
-                            onEdit={handleEdit}
-                            onDelete={handleDelete}
-                        />
+                        {/* Loading state */}
+                        {loading && (
+                            <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500">
+                                Loading posts...
+                            </div>
+                        )}
+
+                        {/* Error state */}
+                        {!loading && error && (
+                            <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-red-600">
+                                {error}
+                            </div>
+                        )}
+
+                        {/* Posts table */}
+                        {!loading && !error && (
+                            <>
+                                <PostTable
+                                    posts={filteredPosts}
+                                    onView={handleView}
+                                    onEdit={handleEdit}
+                                    onDelete={handleDelete}
+                                />
+
+                                {/* Pagination */}
+                                {pagination && pagination.last_page > 1 && (
+                                    <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+
+                                        <p className="text-sm text-slate-500">
+                                            Showing {pagination.from ?? 0} to {pagination.to ?? 0} of {pagination.total} posts
+                                        </p>
+
+                                        <div className="flex items-center gap-3">
+
+                                            <button
+                                                type="button"
+                                                onClick={() => setPage(page - 1)}
+                                                disabled={page <= 1}
+                                                className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                                            >
+                                                <ChevronLeft size={18} />
+                                                Previous
+                                            </button>
+
+                                            <span className="text-sm font-medium text-slate-600">
+                                                Page {pagination.current_page} of {pagination.last_page}
+                                            </span>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => setPage(page + 1)}
+                                                disabled={page >= pagination.last_page}
+                                                className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                                            >
+                                                Next
+                                                <ChevronRight size={18} />
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+                                )}
+                            </>
+                        )}
 
                     </section>
 

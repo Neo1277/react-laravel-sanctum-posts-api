@@ -25,28 +25,23 @@ import Profile from "./pages/Profile";
 //import AxiosExample from "./pages/AxiosExample";
 //import AxiosCrudExample from "./pages/AxiosCrudExample";
 
-import { posts } from "./data/posts";
-
+import usePosts from "./hooks/usePosts";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider, AuthContext } from "./context/AuthContext";
 
 
 // Home page
+
 function Home() {
 
-    const [currentPage, setCurrentPage] = useState(1);
-
-    const postsPerPage = 6;
-    const start = (currentPage - 1) * postsPerPage;
-
-    const currentPosts = posts.slice(
-        start,
-        start + postsPerPage
-    );
-
-    const totalPages = Math.ceil(
-        posts.length / postsPerPage
-    );
+    const {
+        posts,
+        pagination,
+        page,
+        setPage,
+        loading,
+        error
+    } = usePosts();
 
     return (
         <div className="bg-gradient-to-br from-slate-100 via-gray-200 to-slate-300 min-h-screen p-6">
@@ -61,19 +56,38 @@ function Home() {
                     Latest Posts
                 </h1>
 
-                <PostList posts={currentPosts} />
+                {loading && (
+                    <p className="mt-6 text-center text-slate-600">
+                        Loading posts...
+                    </p>
+                )}
 
-                <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage}
-                />
+                {error && (
+                    <p className="mt-6 text-center text-red-600">
+                        {error}
+                    </p>
+                )}
+
+                {!loading && !error && (
+                    <>
+                        <PostList posts={posts} />
+
+                        {pagination && (
+                            <Pagination
+                                currentPage={page}
+                                totalPages={pagination.last_page}
+                                onPageChange={setPage}
+                            />
+                        )}
+                    </>
+                )}
 
             </div>
 
         </div>
     );
 }
+
 
 
 // Routes for users who are not authenticated

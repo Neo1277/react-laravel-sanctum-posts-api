@@ -7,16 +7,17 @@ import {
     Save
 } from "lucide-react";
 
-import { categories } from "../../data/categories";
+import useCategories from "../../hooks/useCategories";
 
 export default function PostForm({
     post,
     onSave,
     onCancel
 }) {
+
     const [formData, setFormData] = useState({
         title: "",
-        category: categories[0] || "",
+        category_id: "",
         slug: "",
         short_text: "",
         large_text: "",
@@ -26,11 +27,17 @@ export default function PostForm({
     const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
     const [errors, setErrors] = useState({});
 
+    const {
+        categories,
+        loading: categoriesLoading,
+        error: categoriesError
+    } = useCategories();    
+
     useEffect(() => {
         if (post) {
             setFormData({
                 title: post.title || "",
-                category: post.category || categories[0] || "",
+                category_id: post.category_id || "",
                 slug: post.slug || "",
                 short_text: post.short_text || "",
                 large_text: post.large_text || "",
@@ -129,10 +136,10 @@ export default function PostForm({
             newErrors.title = "Title is required.";
         }
 
-        if (!formData.category) {
-            newErrors.category = "Please select a category.";
+        if (!formData.category_id) {
+            newErrors.category_id = "Please select a category.";
         }
-
+        
         if (!formData.slug.trim()) {
             newErrors.slug = "Slug is required.";
         }
@@ -243,28 +250,37 @@ export default function PostForm({
                                 </label>
 
                                 <select
-                                    name="category"
-                                    value={formData.category}
+                                    name="category_id"
+                                    value={formData.category_id}
                                     onChange={handleChange}
-                                    className={inputClass("category")}
+                                    className={inputClass("category_id")}
+                                    disabled={categoriesLoading}
                                 >
                                     <option value="">
-                                        Select a category
+                                        {categoriesLoading
+                                            ? "Loading categories..."
+                                            : "Select a category"}
                                     </option>
 
                                     {categories.map((category) => (
                                         <option
-                                            key={category}
-                                            value={category}
+                                            key={category.id}
+                                            value={category.id}
                                         >
-                                            {category}
+                                            {category.name}
                                         </option>
                                     ))}
                                 </select>
 
-                                {errors.category && (
+                                {errors.category_id && (
                                     <p className="mt-1 text-xs text-red-500">
-                                        {errors.category}
+                                        {errors.category_id}
+                                    </p>
+                                )}
+
+                                {categoriesError && (
+                                    <p className="mt-1 text-xs text-red-500">
+                                        {categoriesError}
                                     </p>
                                 )}
                             </div>

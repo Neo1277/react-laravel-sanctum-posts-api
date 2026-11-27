@@ -12,7 +12,8 @@ import useCategories from "../../hooks/useCategories";
 export default function PostForm({
     post,
     onSave,
-    onCancel
+    onCancel,
+    serverErrors = {}
 }) {
 
     const [formData, setFormData] = useState({
@@ -66,6 +67,26 @@ export default function PostForm({
             setSlugManuallyEdited(false);
         }
     }, [post]);
+
+    useEffect(() => {
+        if (Object.keys(serverErrors).length === 0) {
+            return;
+        }
+
+        const formattedErrors = {};
+
+        Object.entries(serverErrors).forEach(([field, messages]) => {
+            formattedErrors[field] = Array.isArray(messages)
+                ? messages[0]
+                : messages;
+        });
+
+        setErrors((current) => ({
+            ...current,
+            ...formattedErrors
+        }));
+
+    }, [serverErrors]);    
 
     const generateSlug = (value) => {
         return value

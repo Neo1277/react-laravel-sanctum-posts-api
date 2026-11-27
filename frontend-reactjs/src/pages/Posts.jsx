@@ -34,6 +34,7 @@ export default function Posts() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [selectedPost, setSelectedPost] = useState(null);
     const [viewingPost, setViewingPost] = useState(null);
+    const [serverErrors, setServerErrors] = useState({});
 
     // Open create form when navigating from Dashboard
     useEffect(() => {
@@ -89,32 +90,29 @@ export default function Posts() {
 
     // Save new or edited post
     const handleSave = async (formData) => {
-
         try {
+            setServerErrors({});
 
             if (selectedPost) {
-
-                // Update existing post
                 await updatePost(selectedPost.id, formData);
-
             } else {
-
-                // Create new post
                 await addPost(formData);
-
             }
 
             handleCancel();
 
         } catch (err) {
-
             console.error("Error saving post:", err);
+
+            if (err.response?.status === 422) {
+                setServerErrors(err.response.data.errors || {});
+                return;
+            }
 
             window.alert(
                 err.response?.data?.message ||
                 "An error occurred while saving the post."
             );
-
         }
     };
 
@@ -167,6 +165,7 @@ export default function Posts() {
                     post={selectedPost}
                     onSave={handleSave}
                     onCancel={handleCancel}
+                    serverErrors={serverErrors}
                 />
 
             ) : (

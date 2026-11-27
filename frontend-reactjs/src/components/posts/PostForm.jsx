@@ -26,6 +26,9 @@ export default function PostForm({
 
     const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
     const [errors, setErrors] = useState({});
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState("");
+    const [removeImage, setRemoveImage] = useState(false);    
 
     const {
         categories,
@@ -41,10 +44,26 @@ export default function PostForm({
                 slug: post.slug || "",
                 short_text: post.short_text || "",
                 large_text: post.large_text || "",
-                image: post.image || ""
             });
 
+            setImagePreview(post.image || "");
+            setImageFile(null);
+            setRemoveImage(false);
+
             setSlugManuallyEdited(true);
+        } else {
+            setFormData({
+                title: "",
+                category_id: "",
+                slug: "",
+                short_text: "",
+                large_text: "",
+            });
+
+            setImagePreview("");
+            setImageFile(null);
+            setRemoveImage(false);
+            setSlugManuallyEdited(false);
         }
     }, [post]);
 
@@ -94,37 +113,36 @@ export default function PostForm({
 
         if (!file) return;
 
-        if (!file.type.startsWith("image/")) {
+        const allowedTypes = [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ];
+
+        if (!allowedTypes.includes(file.type)) {
             setErrors((current) => ({
                 ...current,
-                image: "Please select a valid image."
+                image: "Only JPG, PNG and WEBP images are allowed."
             }));
             return;
         }
 
-        if (file.size > 5 * 1024 * 1024) {
+        if (file.size > 2 * 1024 * 1024) {
             setErrors((current) => ({
                 ...current,
-                image: "The image must not exceed 5 MB."
+                image: "The image must not exceed 2 MB."
             }));
             return;
         }
 
-        const reader = new FileReader();
+        setImageFile(file);
+        setImagePreview(URL.createObjectURL(file));
+        setRemoveImage(false);
 
-        reader.onload = () => {
-            setFormData((current) => ({
-                ...current,
-                image: reader.result
-            }));
-
-            setErrors((current) => ({
-                ...current,
-                image: ""
-            }));
-        };
-
-        reader.readAsDataURL(file);
+        setErrors((current) => ({
+            ...current,
+            image: ""
+        }));
     };
 
     const handleSubmit = (event) => {
@@ -163,7 +181,9 @@ export default function PostForm({
             title: formData.title.trim(),
             slug: formData.slug.trim(),
             short_text: formData.short_text.trim(),
-            large_text: formData.large_text.trim()
+            large_text: formData.large_text.trim(),
+            image: imageFile,
+            remove_image: removeImage
         });
     };
 
@@ -373,21 +393,22 @@ export default function PostForm({
                         Maximum size: 5 MB.
                     </p>
 
-                    {formData.image ? (
+                    {imagePreview ? (
                         <div className="relative overflow-hidden rounded-xl border border-slate-200">
 
                             <img
-                                src={formData.image}
+                                src={imagePreview}
                                 alt="Post preview"
                                 className="h-56 w-full object-cover sm:h-72"
                             />
 
                             <button
                                 type="button"
-                                onClick={() => setFormData((current) => ({
-                                    ...current,
-                                    image: ""
-                                }))}
+                                onClick={() => {
+                                    setImagePreview("");
+                                    setImageFile(null);
+                                    setRemoveImage(Boolean(post?.image));
+                                }}
                                 aria-label="Remove image"
                                 className="absolute right-3 top-3 rounded-full bg-white p-2 text-red-500 shadow-md transition hover:bg-red-50"
                             >

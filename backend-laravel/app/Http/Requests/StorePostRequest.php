@@ -22,13 +22,17 @@ class StorePostRequest extends FormRequest
      */
     public function rules(): array
     {
+        $postId = $this->route('id');
+
         return [
-            'title' => 'required',
-            'category_id' => 'required',
-            'slug' => 'required|unique:posts,slug',
-            'short_text' => 'required',
-            'large_text' => 'required',
+            'title' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'slug' => 'required|string|max:255|unique:posts,slug,' . $postId,
+            'short_text' => 'required|string',
+            'large_text' => 'required|string',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'remove_image' => 'nullable|boolean',
         ];
     }
+
 }

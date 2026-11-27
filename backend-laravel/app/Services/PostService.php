@@ -102,22 +102,37 @@ class PostService implements PostServiceInterface
      */
     public function update(array $data, int $id)
     {
-        $post = $this->postRepository->find($id);
+        $post = $this->postRepository->findOrFail($id);
 
-        if (isset($data['image'])) {
-
+        // Remove the existing image if requested
+        if (!empty($data['remove_image'])) {
             if ($post->image) {
                 Storage::disk('public')->delete($post->image);
             }
 
-            $data['image'] = $data['image']->store(
-                'posts',
-                'public'
-            );
+            $data['image'] = null;
         }
+
+        // Upload a new image if provided
+        if (isset($data['image'])) {
+
+            // Store the new image first
+            $path = $data['image']->store('posts', 'public');
+
+            // Delete the previous image after successful upload
+            if ($post->image) {
+                Storage::disk('public')->delete($post->image);
+            }
+
+            $data['image'] = $path;
+        }
+
+        // Internal flag: do not save it in the posts table
+        unset($data['remove_image']);
 
         return $this->postRepository->update($data, $id);
     }
+
 
     /**
      * Delete a post.
